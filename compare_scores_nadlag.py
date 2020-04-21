@@ -27,9 +27,9 @@ type_obs = sys.argv[1]
 workpath = "/home3/scratch/mbeaucha/compare_scores_nadlag_"+type_obs
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
-#else:
-#    shutil.rmtree(workpath)
-#    mk_dir_recursive(workpath)    
+else:
+    shutil.rmtree(workpath)
+    mk_dir_recursive(workpath)    
 
 ## Reload saved AnDA result
 # NADLAG = 0
