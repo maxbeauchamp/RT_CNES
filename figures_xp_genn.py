@@ -29,9 +29,9 @@ workpath = "/home3/scratch/mbeaucha/scores_GENN_"+type_obs
 scratchpath = '/home3/scratch/mbeaucha'
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
-else:
-    shutil.rmtree(workpath)
-    mk_dir_recursive(workpath)    
+#else:
+#    shutil.rmtree(workpath)
+#    mk_dir_recursive(workpath)    
 
 # Reload AnDA results (for GT and OI)
 file_results_AnDA=scratchpath+'/resAnDA_'+opt+'_nadlag_5_'+type_obs+'/saved_path.pickle'
@@ -155,7 +155,7 @@ tab_scores[4,2] = np.percentile(nrmse_FP_GENN_5[index],95)
 tab_scores[5,0] = np.nanmean(nrmse_FP_GENN_6[index])
 tab_scores[5,1] = np.percentile(nrmse_FP_GENN_6[index],5)
 tab_scores[5,2] = np.percentile(nrmse_FP_GENN_6[index],95)
-np.savetxt(fname=workpath+"/tab_scores.txt",X=tab_scores,fmt='%2.2f')
+np.savetxt(fname=workpath+"/tab_scores_"+opt+".txt",X=tab_scores,fmt='%2.2f')
 
 
 N = len(lday)
@@ -187,7 +187,7 @@ p1 = axes2.bar(range(N), nadswotcov, width,color='r',alpha=0.25)
 axes2.set_ylim(0, 1)
 axes2.set_ylabel('Spatial Coverage (%)')
 axes2.margins(x=0)
-resfile=workpath+"/TS_AnDA_nRMSE.png"
+resfile=workpath+"/TS_AnDA_nRMSE_"+opt+".png"
 plt.savefig(resfile,bbox_inches="tight")    # save the figure
 plt.close()         	# close the figure
 

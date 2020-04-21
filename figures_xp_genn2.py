@@ -90,8 +90,6 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     nrmse_FP_GENN_1[i]    = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_GENN_1-np.nanmean(FP_GENN_1)))**2)))/np.nanstd(gt)
     nrmse_FP_GENN_2[i]    = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_GENN_2-np.nanmean(FP_GENN_2)))**2)))/np.nanstd(gt)
 
-
-
 N = len(lday)
 print(N)
 # first axis with nRMSE time
