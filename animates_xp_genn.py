@@ -30,7 +30,9 @@ def mk_dir_recursive(dir_path):
         os.mkdir(new_path)
 
 type_obs = sys.argv[1]
+domain   = sys.argv[2] 
 workpath = "/home3/scratch/mbeaucha/animates_GENN_wcovar_"+type_obs
+scratchpath = '/home3/scratch/mbeaucha/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:
@@ -38,89 +40,95 @@ else:
     mk_dir_recursive(workpath)
 
 # Reload AnDA results (for GT and OI)
-file_results_AnDA='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_5_'+type_obs+'/saved_path.pickle'
+file_results_AnDA=scratchpath+'/resAnDA_nadirswot_nadlag_5_'+type_obs+'/saved_path.pickle'
 with open(file_results_AnDA, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot = AnDA_ssh_1
     itrp_dineof_nadirswot = itrp_dineof
 
 # Reload GE-NN results
-file_results_1='/home3/scratch/mbeaucha/resIA_tests_GENN_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_1=scratchpath+'/resIA_tests_GENN_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_1, 'rb') as handle:
     itrp_FP_GENN_1 = pickle.load(handle)[2]
-file_results_2='/home3/scratch/mbeaucha/resIA_tests_GENN_'+type_obs+'/FP_GENN_wmissing_wocov/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_2=scratchpath+'/resIA_tests_GENN_'+type_obs+'/FP_GENN_wmissing_wocov/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_2, 'rb') as handle:
     itrp_FP_GENN_2 = pickle.load(handle)[2]
-file_results_3='/home3/scratch/mbeaucha/resIA_tests_GENN_'+type_obs+'/FP_GENN_womissing_wOI/saved_path_019_FP_GENN_womissing.pickle'
+file_results_3=scratchpath+'/resIA_tests_GENN_'+type_obs+'/FP_GENN_womissing_wOI/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_3, 'rb') as handle:
     itrp_FP_GENN_3 = pickle.load(handle)[2]
-file_results_4='/home3/scratch/mbeaucha/resIA_tests_GENN_'+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_4=scratchpath+'/resIA_tests_GENN_'+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_4, 'rb') as handle:
     itrp_FP_GENN_4 = pickle.load(handle)[2]
 
 
 # 6-plots video individual maps
-lon = np.arange(-65,-55,1/20)
-lat = np.arange(30,40,1/20)
-indLat = np.arange(0,200)
-indLon = np.arange(0,200)
-lon = lon[indLon]
-lat = lat[indLat]
-extent_=[np.min(lon),np.max(lon),np.min(lat),np.max(lat)]
-
-indLon=200
-indLat=200
+if domain=="OSMOSIS":
+    extent     = [-19.5,-11.5,45.,55.]
+    indLat     = 200
+    indLon     = 160
+elif domain=='GULFSTREAM':
+    extent     = [-65.,-55.,33.,43.]
+    indLat     = 200
+    indLon     = 200
+else: 
+    extent=[-65.,-55.,30.,40.]
+    indLat     = 200
+    indLon     = 200
+lon = np.arange(extent[0],extent[1],1/20)
+lat = np.arange(extent[2],extent[3],1/20)
+lon = lon[:indLon]
+lat = lat[:indLat]
 
 # Compute GT gradient
 Grad_gt=np.zeros((len(AnDA_ssh_1.GT),indLon,indLat))
 for i in range(len(AnDA_ssh_1.GT)):
-    Grad_gt[i,:,:] = Gradient(AnDA_ssh_1.GT[i,:indLon,:indLat],2)
+    Grad_gt[i,:,:] = Gradient(AnDA_ssh_1.GT[i,:indLat,:indLon],2)
 
 def init():
     global fig, ax
     # Load data
-    gt                          = AnDA_ssh_1.GT[0,:indLon,:indLat]
+    gt                          = AnDA_ssh_1.GT[0,:indLat,:indLon]
     Grad_gt                     = Gradient(gt,2)
-    obs                         = AnDA_ssh_1_nadirswot.Obs[0,:indLon,:indLat]
+    obs                         = AnDA_ssh_1_nadirswot.Obs[0,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
     # nadirswot
-    FP_GENN_1                   = itrp_FP_GENN_1[0,:indLon,:indLat]
+    FP_GENN_1                   = itrp_FP_GENN_1[0,:indLat,:indLon]
     Grad_FP_GENN_1              = Gradient(FP_GENN_1,2)
-    FP_GENN_2                   = itrp_FP_GENN_2[0,:indLon,:indLat]
+    FP_GENN_2                   = itrp_FP_GENN_2[0,:indLat,:indLon]
     Grad_FP_GENN_2              = Gradient(FP_GENN_2,2)
-    FP_GENN_3                   = itrp_FP_GENN_3[0,:indLon,:indLat]
+    FP_GENN_3                   = itrp_FP_GENN_3[0,:indLat,:indLon]
     Grad_FP_GENN_3              = Gradient(FP_GENN_3,2)
-    FP_GENN_4                   = itrp_FP_GENN_4[0,:indLon,:indLat]
+    FP_GENN_4                   = itrp_FP_GENN_4[0,:indLat,:indLon]
     Grad_FP_GENN_4              = Gradient(FP_GENN_4,2)
     for ivar in range(len(var)):
         ii = int(np.floor(ivar/3))
         jj = int(np.floor(ivar%3))
         plot(ax,ii,jj,lon,lat,eval(var[ivar]),title[ivar],\
-              extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=True,\
+              extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=True,\
               orientation="vertical")
 
 def animate(i):
     global fig, ax
     # Load data
-    gt                          = AnDA_ssh_1.GT[i,:indLon,:indLat]
+    gt                          = AnDA_ssh_1.GT[i,:indLat,:indLon]
     Grad_gt                     = Gradient(gt,2)
-    obs                         = AnDA_ssh_1_nadirswot.Obs[i,:indLon,:indLat]
+    obs                         = AnDA_ssh_1_nadirswot.Obs[i,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
     # nadirswot
-    FP_GENN_1                   = itrp_FP_GENN_1[i,:indLon,:indLat]
+    FP_GENN_1                   = itrp_FP_GENN_1[i,:indLat,:indLon]
     Grad_FP_GENN_1              = Gradient(FP_GENN_1,2)
-    FP_GENN_2                   = itrp_FP_GENN_2[i,:indLon,:indLat]
+    FP_GENN_2                   = itrp_FP_GENN_2[i,:indLat,:indLon]
     Grad_FP_GENN_2              = Gradient(FP_GENN_2,2)
-    FP_GENN_3                   = itrp_FP_GENN_3[i,:indLon,:indLat]
+    FP_GENN_3                   = itrp_FP_GENN_3[i,:indLat,:indLon]
     Grad_FP_GENN_3              = Gradient(FP_GENN_3,2)
-    FP_GENN_4                   = itrp_FP_GENN_4[i,:indLon,:indLat]
+    FP_GENN_4                   = itrp_FP_GENN_4[i,:indLat,:indLon]
     Grad_FP_GENN_4              = Gradient(FP_GENN_4,2)
     for ivar in range(len(var)):   
         ii = int(np.floor(ivar/3))
         jj = int(np.floor(ivar%3))
         ax[ii][jj].cla()
         plot(ax,ii,jj,lon,lat,eval(var[ivar]),title[ivar],\
-              extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
+              extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
     return fig, ax
 
 # for nadir

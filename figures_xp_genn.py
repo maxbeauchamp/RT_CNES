@@ -25,8 +25,9 @@ def mk_dir_recursive(dir_path):
 
 opt      = sys.argv[1]
 type_obs = sys.argv[2]
-workpath = "/home3/scratch/mbeaucha/scores_GENN_"+type_obs
-scratchpath = '/home3/scratch/mbeaucha'
+domain   = sys.argv[3]
+workpath = "/home3/scratch/mbeaucha/"+domain+"scores_GENN_"+type_obs
+scratchpath = '/home3/scratch/mbeaucha/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 #else:
@@ -64,13 +65,23 @@ with open(file_results_6, 'rb') as handle:
 			# Display results #
 			#*****************#
 
-lon = np.arange(-65,-55,1/20)
-lat = np.arange(30,40,1/20)
-indLat  = np.arange(0,200)
-indLon  = np.arange(0,200)
-lon = lon[indLon]
-lat = lat[indLat]
-extent_ = [np.min(lon),np.max(lon),np.min(lat),np.max(lat)]
+if domain=="OSMOSIS":
+    extent     = [-19.5,-11.5,45.,55.]
+    indLat     = 200
+    indLon     = 160
+elif domain=='GULFSTREAM':
+    extent     = [-65.,-55.,33.,43.]
+    indLat     = 200
+    indLon     = 200
+else:
+    extent=[-65.,-55.,30.,40.]
+    indLat     = 200
+    indLon     = 200
+lon = np.arange(extent[0],extent[1],1/20)
+lat = np.arange(extent[2],extent[3],1/20)
+lon = lon[:indLon]
+lat = lat[:indLat]
+
 
 ## Init variables for temporal analysis
 nrmse_FP_GENN_1=np.zeros(len(itrp_FP_GENN_1))
@@ -96,29 +107,27 @@ lday = np.concatenate([lday1,lday2,lday3,lday4])
 lday2 = [ datetime.strptime(lday[i],'%Y-%m-%d') for i in range(len(lday)) ] 
 
 ## Spatial analysis
-indLon=200
-indLat=200
 
 for i in range(0,len(AnDA_ssh_1.GT)):
 
     day=lday[i]
     print(day)
     # Load data
-    gt 				= AnDA_ssh_1.GT[i,:indLon,:indLat]
+    gt 				= AnDA_ssh_1.GT[i,:indLat,:indLon]
     Grad_gt             	= Gradient(gt,2)
-    obs_nadirswot               = AnDA_ssh_1_nadirswot.Obs[i,:indLon,:indLat]
+    obs_nadirswot               = AnDA_ssh_1_nadirswot.Obs[i,:indLat,:indLon]
     # nadirswot
-    FP_GENN_1                   = itrp_FP_GENN_1[i,:indLon,:indLat]
+    FP_GENN_1                   = itrp_FP_GENN_1[i,:indLat,:indLon]
     Grad_FP_GENN_1              = Gradient(FP_GENN_1,2)
-    FP_GENN_2                   = itrp_FP_GENN_2[i,:indLon,:indLat]
+    FP_GENN_2                   = itrp_FP_GENN_2[i,:indLat,:indLon]
     Grad_FP_GENN_2              = Gradient(FP_GENN_2,2)
-    FP_GENN_3                   = itrp_FP_GENN_3[i,:indLon,:indLat]
+    FP_GENN_3                   = itrp_FP_GENN_3[i,:indLat,:indLon]
     Grad_FP_GENN_3              = Gradient(FP_GENN_3,2)
-    FP_GENN_4                   = itrp_FP_GENN_4[i,:indLon,:indLat]
+    FP_GENN_4                   = itrp_FP_GENN_4[i,:indLat,:indLon]
     Grad_FP_GENN_4              = Gradient(FP_GENN_4,2)
-    FP_GENN_5                   = itrp_FP_GENN_5[i,:indLon,:indLat]
+    FP_GENN_5                   = itrp_FP_GENN_5[i,:indLat,:indLon]
     Grad_FP_GENN_5              = Gradient(FP_GENN_5,2)
-    FP_GENN_6                   = itrp_FP_GENN_6[i,:indLon,:indLat]
+    FP_GENN_6                   = itrp_FP_GENN_6[i,:indLat,:indLon]
     Grad_FP_GENN_6              = Gradient(FP_GENN_6,2)
 
     ## Compute spatial coverage

@@ -26,36 +26,38 @@ def mk_dir_recursive(dir_path):
 AnDA_lag = sys.argv[1]
 NN_lag   = sys.argv[2]
 type_obs = sys.argv[3]
-workpath = "/home3/scratch/mbeaucha/scores_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
+domain   = sys.argv[4] 
+workpath = "/home3/scratch/mbeaucha/"+domain+"/scores_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
+scratchpath = '/home3/scratch/mbeaucha/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
-else:
-    shutil.rmtree(workpath)
-    mk_dir_recursive(workpath)    
+#else:
+#    shutil.rmtree(workpath)
+#    mk_dir_recursive(workpath)    
 
 # Reload saved AnDA result
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir = AnDA_ssh_1  
     itrp_dineof_nadir = itrp_dineof
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot = AnDA_ssh_1  
     itrp_dineof_nadirswot = itrp_dineof
 
 # Reload saved ConvAE and GE-NN results
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir, rec_FP_ConvAE_nadir = pickle.load(handle)[2:]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot, rec_FP_ConvAE_nadirswot = pickle.load(handle)[2:]
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir, rec_FP_GENN_nadir = pickle.load(handle)[2:]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wocov/saved_path_019_FP_GENN_wwmissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot, rec_FP_GENN_nadirswot = pickle.load(handle)[2:]
 
@@ -63,13 +65,22 @@ with open(file_results_nadirswot, 'rb') as handle:
 			# Display results #
 			#*****************#
 resssh = 4
-lon = np.arange(-65,-55,1/20)
-lat = np.arange(30,40,1/20)
-indLat  = np.arange(0,200)
-indLon  = np.arange(0,200)
-lon = lon[indLon]
-lat = lat[indLat]
-extent_ = [np.min(lon),np.max(lon),np.min(lat),np.max(lat)]
+if domain=="OSMOSIS":
+    extent     = [-19.5,-11.5,45.,55.]
+    indLat     = 200
+    indLon     = 160
+elif domain=='GULFSTREAM':
+    extent     = [-65.,-55.,33.,43.]
+    indLat     = 200
+    indLon     = 200
+else:
+    extent=[-65.,-55.,30.,40.]
+    indLat     = 200
+    indLon     = 200
+lon = np.arange(extent[0],extent[1],1/20)
+lat = np.arange(extent[2],extent[3],1/20)
+lon = lon[:indLon]
+lat = lat[:indLat]
 
 ##*** INIT SSH STATISTICS ***##
 ## Init variables for temporal analysis (R scores)
@@ -167,58 +178,55 @@ lday = np.concatenate([lday1,lday2,lday3,lday4])
 lday2 = [ datetime.strptime(lday[i],'%Y-%m-%d') for i in range(len(lday)) ] 
 ## Spatial analysis
 
-indLon=200
-indLat=200
-
 for i in range(0,len(AnDA_ssh_1.GT)):
 
     day=lday[i]
     print(day)
     ## Maps
-    resfile1=workpath+"/results_AnDA_maps_"+day+".png"
-    resfile2=workpath+"/results_AnDA_grads_"+day+".png"
+    resfile1=workpath+"/results_"+day+".png"
+    resfile2=workpath+"/results_Grad_"+day+".png"
     # Load data
-    gt 				= AnDA_ssh_1.GT[i,:indLon,:indLat]
+    gt 				= AnDA_ssh_1.GT[i,:indLat,:indLon]
     Grad_gt             	= Gradient(gt,2)
     # nadir
-    OI_nadir                    = AnDA_ssh_1_nadir.itrp_OI[i,:indLon,:indLat]
+    OI_nadir                    = AnDA_ssh_1_nadir.itrp_OI[i,:indLat,:indLon]
     Grad_OI_nadir               = Gradient(OI_nadir,2)
-    obs_nadir 			= AnDA_ssh_1_nadir.Obs[i,:indLon,:indLat]
+    obs_nadir 			= AnDA_ssh_1_nadir.Obs[i,:indLat,:indLon]
     mask1_nadir                 = np.where(np.isnan(obs_nadir),np.nan,1)
     mask2_nadir                 = np.where(np.isnan(obs_nadir),1,np.nan)
-    VE_DINEOF_nadir           	= itrp_dineof_nadir[i,:indLon,:indLat]
+    VE_DINEOF_nadir           	= itrp_dineof_nadir[i,:indLat,:indLon]
     Grad_VE_DINEOF_nadir 	= Gradient(VE_DINEOF_nadir,2)
-    AnDA_nadir 		 	= AnDA_ssh_1_nadir.itrp_AnDA[i,:indLon,:indLat]
+    AnDA_nadir 		 	= AnDA_ssh_1_nadir.itrp_AnDA[i,:indLat,:indLon]
     Grad_AnDA_nadir          	= Gradient(AnDA_nadir,2)
-    Post_AnDA_nadir 		= AnDA_ssh_1_nadir.itrp_postAnDA[i,:indLon,:indLat]
+    Post_AnDA_nadir 		= AnDA_ssh_1_nadir.itrp_postAnDA[i,:indLat,:indLon]
     Grad_Post_AnDA_nadir	= Gradient(Post_AnDA_nadir,2)
-    FP_ConvAE_nadir		= itrp_FP_ConvAE_nadir[i,:indLon,:indLat]
+    FP_ConvAE_nadir		= itrp_FP_ConvAE_nadir[i,:indLat,:indLon]
     Grad_FP_ConvAE_nadir        = Gradient(FP_ConvAE_nadir,2)
-    FP_GENN_nadir               = itrp_FP_GENN_nadir[i,:indLon,:indLat]
+    FP_GENN_nadir               = itrp_FP_GENN_nadir[i,:indLat,:indLon]
     Grad_FP_GENN_nadir          = Gradient(FP_GENN_nadir,2)
-    rFP_ConvAE_nadir            = rec_FP_ConvAE_nadir[i,:indLon,:indLat]
+    rFP_ConvAE_nadir            = rec_FP_ConvAE_nadir[i,:indLat,:indLon]
     rGrad_FP_ConvAE_nadir       = Gradient(rFP_ConvAE_nadir,2)
-    rFP_GENN_nadir              = rec_FP_GENN_nadir[i,:indLon,:indLat]
+    rFP_GENN_nadir              = rec_FP_GENN_nadir[i,:indLat,:indLon]
     rGrad_FP_GENN_nadir         = Gradient(rFP_GENN_nadir,2)
     # nadirswot
-    OI_nadirswot                = AnDA_ssh_1_nadirswot.itrp_OI[i,:indLon,:indLat]
+    OI_nadirswot                = AnDA_ssh_1_nadirswot.itrp_OI[i,:indLat,:indLon]
     Grad_OI_nadirswot           = Gradient(OI_nadirswot,2)
-    obs_nadirswot 		= AnDA_ssh_1_nadirswot.Obs[i,:indLon,:indLat]
+    obs_nadirswot 		= AnDA_ssh_1_nadirswot.Obs[i,:indLat,:indLon]
     mask1_nadirswot             = np.where(np.isnan(obs_nadirswot),np.nan,1)
     mask2_nadirswot             = np.where(np.isnan(obs_nadirswot),1,np.nan) 
-    VE_DINEOF_nadirswot         = itrp_dineof_nadirswot[i,:indLon,:indLat]
+    VE_DINEOF_nadirswot         = itrp_dineof_nadirswot[i,:indLat,:indLon]
     Grad_VE_DINEOF_nadirswot    = Gradient(VE_DINEOF_nadirswot,2)
-    AnDA_nadirswot 		= AnDA_ssh_1_nadirswot.itrp_AnDA[i,:indLon,:indLat]
+    AnDA_nadirswot 		= AnDA_ssh_1_nadirswot.itrp_AnDA[i,:indLat,:indLon]
     Grad_AnDA_nadirswot         = Gradient(AnDA_nadirswot,2)
-    Post_AnDA_nadirswot         = AnDA_ssh_1_nadirswot.itrp_postAnDA[i,:indLon,:indLat]
+    Post_AnDA_nadirswot         = AnDA_ssh_1_nadirswot.itrp_postAnDA[i,:indLat,:indLon]
     Grad_Post_AnDA_nadirswot    = Gradient(Post_AnDA_nadirswot,2)
-    FP_ConvAE_nadirswot         = itrp_FP_ConvAE_nadirswot[i,:indLon,:indLat]
+    FP_ConvAE_nadirswot         = itrp_FP_ConvAE_nadirswot[i,:indLat,:indLon]
     Grad_FP_ConvAE_nadirswot    = Gradient(FP_ConvAE_nadirswot,2)
-    FP_GENN_nadirswot           = itrp_FP_GENN_nadirswot[i,:indLon,:indLat]
+    FP_GENN_nadirswot           = itrp_FP_GENN_nadirswot[i,:indLat,:indLon]
     Grad_FP_GENN_nadirswot      = Gradient(FP_GENN_nadirswot,2)
-    rFP_ConvAE_nadirswot        = rec_FP_ConvAE_nadirswot[i,:indLon,:indLat]
+    rFP_ConvAE_nadirswot        = rec_FP_ConvAE_nadirswot[i,:indLat,:indLon]
     rGrad_FP_ConvAE_nadirswot   = Gradient(rFP_ConvAE_nadirswot,2)
-    rFP_GENN_nadirswot          = rec_FP_GENN_nadirswot[i,:indLon,:indLat]
+    rFP_GENN_nadirswot          = rec_FP_GENN_nadirswot[i,:indLat,:indLon]
     rGrad_FP_GENN_nadirswot     = Gradient(rFP_GENN_nadirswot,2)
 
     ## Compute spatial coverage
@@ -305,7 +313,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
 
     '''# Display individual maps
     var=['gt','obs_nadir','obs_nadirswot',\
-         'OI_nadir','OI_nadirswot'\
+         'OI_nadir','OI_nadirswot',\
          'AnDA_nadir','AnDA_nadirswot',\
          'Post_AnDA_nadir','Post_AnDA_nadirswot',\
          'FP_ConvAE_nadir','FP_ConvAE_nadirswot',\
@@ -315,23 +323,24 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            'OI (nadir)','OI (nadir+swot)',\
            'AnDA (nadir)','AnDA (nadir+swot)',\
            'Post-AnDA (nadir)','Post-AnDA (nadir+swot)',\
-           'FP-ConvAE (nadir)''FP-ConvAE (nadir+swot)',\
+           'FP-ConvAE (nadir)','FP-ConvAE (nadir+swot)',\
            'FP-GENN (nadir)','FP-GENN (nadir+swot)',\
            'VE-DINEOF (nadir)','VE-DINEOF (nadir+swot)']
-    for ivar in range(0,len(var)):
-        resfile = workpath+"/results_AnDA_maps_"+var[ivar]+'_'+day+".png"
+    for ivar in range(len(var)):
+        resfile = workpath+"/results_"+var[ivar]+'_'+day+".png"
         fig, ax = plt.subplots(1,1,figsize=(10,10),
                           subplot_kw=dict(projection=ccrs.PlateCarree(central_longitude=0.0)))   
-        vmin = -2 ; vmax = 2
+        vmax = np.nanmax(np.abs(gt))
+        vmin = -1.*vmax
         cmap="coolwarm"
         plot2(ax,lon,lat,eval(var[ivar]),title[ivar],\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
         plt.savefig(resfile)       # save the figure
         plt.close()                 # close the figure
 
     # Display individual gradient maps
     var=['Grad_gt',\
-         'Grad_OI_nadirswot','Grad_OI_nadirswot',\
+         'Grad_OI_nadir','Grad_OI_nadirswot',\
          'Grad_AnDA_nadir','Grad_AnDA_nadirswot',\
          'Grad_Post_AnDA_nadir','Grad_Post_AnDA_nadirswot',\
          'Grad_FP_ConvAE_nadir','Grad_FP_ConvAE_nadirswot',\
@@ -344,14 +353,14 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            r"$\nabla_{FP-ConvAE}$ (nadir)",r"$\nabla_{FP-ConvAE} (nadir+swot)$",\
            r"$\nabla_{FP-GENN}$ (nadir)",r"$\nabla_{FP-GENN} (nadir+swot)$",\
            r"$\nabla_{VE-DINEOF}$ (nadir)",r"$\nabla_{VE-DINEOF} (nadir+swot)$",]
-    for ivar in range(0,len(var)):
-        resfile = workpath+"/results_AnDA_grads_"+var[ivar]+'_'+day+".png"
+    for ivar in range(len(var)):
+        resfile = workpath+"/results_"+var[ivar]+'_'+day+".png"
         fig, ax = plt.subplots(1,1,figsize=(10,10),
                           subplot_kw=dict(projection=ccrs.PlateCarree(central_longitude=0.0)))
-        vmin = 0 ; vmax = 0.2
+        vmin = 0 ; vmax = np.nanmax(Grad_gt)
         cmap="viridis"
         plot2(ax,lon,lat,eval(var[ivar]),title[ivar],\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
         plt.savefig(resfile)       # save the figure
         plt.close()                 # close the figure
 
@@ -376,20 +385,19 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     vmin = np.nanmin(gt) ; vmax = np.nanmax(gt)
     cmap="coolwarm"
     plot(ax,0,0,lon,lat,gt,'GT',\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     ax[1][0].set_visible(False)
-    ax[2][0].set_visible(False)
     for ivar in range(0,len(var)):
         i = int(np.floor(ivar/2))+1 ; j = (ivar%2)
         plot(ax,j,i,lon,lat,eval(var[ivar]),title[ivar],\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     plt.subplots_adjust(hspace=0.3,wspace=0.5)
     plt.savefig(resfile1)	# save the figure
     plt.close()			# close the figure
 
     # Display gradients
     var=['obs_nadir','obs_nadirswot',\
-         'Grad_OI','Grad_OI',\
+         'Grad_OI_nadir','Grad_OI_nadirswot',\
          'Grad_AnDA_nadir','Grad_AnDA_nadirswot',\
          'Grad_Post_AnDA_nadir','Grad_Post_AnDA_nadirswot',\
          'Grad_FP_ConvAE_nadir','Grad_FP_ConvAE_nadirswot',\
@@ -409,17 +417,16 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     cmap="viridis"
     cmap2="coolwarm"
     plot(ax,0,0,lon,lat,Grad_gt,r"$\nabla_{GT}$",\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     ax[1][0].set_visible(False)
-    ax[2][0].set_visible(False)
     for ivar in range(0,len(var)):
         i = int(np.floor(ivar/2))+1 ; j = (ivar%2)
         if i==1:
             plot(ax,j,i,lon,lat,eval(var[ivar]),title[ivar],\
-                 extent=extent_,cmap=cmap2,vmin=vmin2,vmax=vmax2)
+                 extent=extent,cmap=cmap2,vmin=vmin2,vmax=vmax2)
         else:
             plot(ax,j,i,lon,lat,eval(var[ivar]),title[ivar],\
-                 extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+                 extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     plt.subplots_adjust(hspace=0.3,wspace=0.5)
     plt.savefig(resfile2)	# save the figure
     plt.close()			# close the figure
@@ -442,8 +449,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
             'FP_GENN_nadir':FP_GENN_nadir,'FP_GENN_nadirswot':FP_GENN_nadirswot,
             'VE_DINEOF_nadir':VE_DINEOF_nadir,'VE_DINEOF_nadirswot':VE_DINEOF_nadirswot}
     Taylor_diag(series,label,\
-                styles=['k','s','p','o','p','o','p','o','p','o','p','o'],\
-                colors=['k','y','mediumseagreen','mediumseagreen',\
+                styles=['k','p','o','p','o','p','o','p','o','p','o','p','o'],\
+                colors=['k','y','y','mediumseagreen','mediumseagreen',\
                                 'seagreen','seagreen',\
                                 'steelblue','steelblue',\
                                 'mediumorchid','mediumorchid',\
@@ -468,8 +475,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
             'Grad_FP_GENN_nadir':Grad_FP_GENN_nadir,'Grad_FP_GENN_nadirswot':Grad_FP_GENN_nadirswot,
             'Grad_VE_DINEOF_nadir':VE_DINEOF_nadir,'Grad_VE_DINEOF_nadirswot':VE_DINEOF_nadirswot}
     Taylor_diag(series,label,\
-                styles=['k','s','p','o','p','o','p','o','p','o','p','o'],\
-                colors=['k','y','mediumseagreen','mediumseagreen',\
+                styles=['k','p','o','p','o','p','o','p','o','p','o','p','o'],\
+                colors=['k','y','y','mediumseagreen','mediumseagreen',\
                                 'seagreen','seagreen',\
                                 'steelblue','steelblue',\
                                 'mediumorchid','mediumorchid',\
@@ -478,7 +485,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     plt.close()
 
     ## Radial Power Spectrum (RAPS)
-    resfile=workpath+"/results_AnDA_RAPS_"+day+".png"
+    resfile=workpath+"/results_RAPS_"+day+".png"
     f_ref, Pf_GT    			= raPsd2dv1(gt,resssh,True)
     f0_nadir, Pf_OI_nadir 		= raPsd2dv1(OI_nadir,resssh,True)
     f0_nadirswot, Pf_OI_nadirswot       = raPsd2dv1(OI_nadirswot,resssh,True)
@@ -531,7 +538,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     plt.close()         	# close the figure
 
     ## Radial Power Spectrum error (err_RAPS)
-    resfile=workpath+"/results_diffAnDA_RAPS_"+day+".png"
+    resfile=workpath+"/results_diff_RAPS_"+day+".png"
     f0_nadir, Pf_OI_nadir               = err_raPsd2dv1(OI_nadir,gt,resssh,True)
     f0_nadirswot, Pf_OI_nadirswot       = err_raPsd2dv1(OI_nadirswot,gt,resssh,True)
     f1_nadir, Pf_AnDA_nadir             = err_raPsd2dv1(AnDA_nadir,gt,resssh,True)
@@ -581,7 +588,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     plt.close()                 # close the figure
 
     ## Plot averaged RAPS (nadir)
-    resfile=workpath+"/results_diffAnDA_avg_RAPS_nadir"+day+".png"
+    resfile=workpath+"/results_diff_avg_RAPS_nadir"+day+".png"
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(wf0_nadir[1:],Pf_OI_nadir[1:],linestyle='solid',color='red',linewidth=.5,label='OI (nadir)')
@@ -601,7 +608,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     plt.close() # close the figure
 
     ## Plot averaged RAPS (nadirswot)
-    resfile=workpath+"/results_diffAnDA_avg_RAPS_nadirswot"+day+".png"
+    resfile=workpath+"/results_diff_avg_RAPS_nadirswot"+day+".png"
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(wf0_nadirswot[1:],Pf_OI_nadirswot[1:],linestyle='solid',color='red',linewidth=.5,label='OI (nadir+swot)')
@@ -620,7 +627,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     plt.savefig(resfile)# save the figure
     plt.close() # close the figure'''
 
-## SSH score tables 
+## SSH score tables (mean of daily scores)
 index=list(range(5,16))
 index.extend(range(25,36))
 index.extend(range(45,56))
@@ -658,7 +665,7 @@ tab_scores[9,1] = np.nanmean(I_FP_GENN_nadirswot)
 tab_scores[9,2] = np.nanmean(AE_FP_GENN_nadirswot)
 np.savetxt(fname=workpath+"/tab_scores_SSH.txt",X=tab_scores,fmt='%2.2f')
 
-## GradSSH score tables 
+## GradSSH score tables (mean of daily scores)
 tab_scores = np.zeros((10,3))
 tab_scores[0,0] = np.nanmean(R_Grad_OI_nadir)
 tab_scores[0,1] = np.nanmean(I_Grad_OI_nadir)
@@ -692,17 +699,26 @@ tab_scores[9,1] = np.nanmean(I_Grad_FP_GENN_nadirswot)
 tab_scores[9,2] = np.nanmean(AE_Grad_FP_GENN_nadirswot)
 np.savetxt(fname=workpath+"/tab_scores_GradSSH.txt",X=tab_scores,fmt='%2.2f')
 
-## Taylor diagrams
-resfile=workpath+"/Taylor_diagram.png"
-label=['GT',\
-       'OI (nadir)','OI (nadir+swot)',\
-       'AnDA (nadir)','AnDA (nadir+swot)',\
-       'Post-AnDA (nadir)','Post-AnDA (nadir+swot)',\
-       'FP-ConvAE (nadir)','FP-ConvAE (nadir+swot)',\
-       'FP-GENN (nadir)','FP-GENN (nadir+swot)',\
-       'VE-DINEOF (nadir)','VE-DINEOF (nadir+swot)']
+def Iscore(mask1,gt,itrp):
+    return 100*(1-np.nanmean(((mask1*gt-np.nanmean(mask1*gt))-(mask1*itrp-np.nanmean(mask1*itrp)))**2)/np.nanvar(mask1*gt))
+def Rscore(mask1,gt,itrp):
+    return 100*(1-np.nanmean(((mask1*gt-np.nanmean(mask1*gt))-(mask1*itrp-np.nanmean(mask1*itrp)))**2)/np.nanvar(mask1*gt))
+def AEscore(gt,itrp):
+    return 100*(1-np.nanmean(((gt-np.nanmean(gt))-(itrp-np.nanmean(itrp)))**2)/np.nanvar(gt))
+obs_nadir   = AnDA_ssh_1_nadir.Obs[:,:indLat,:indLon].flatten()
+mask1_nadir = np.where(np.isnan(obs_nadir),np.nan,1)
+mask2_nadir = np.where(np.isnan(obs_nadir),1,np.nan)
+obs_nadirswot   = AnDA_ssh_1_nadirswot.Obs[:,:indLat,:indLon].flatten()
+mask1_nadirswot = np.where(np.isnan(obs_nadirswot),np.nan,1)
+mask2_nadirswot = np.where(np.isnan(obs_nadirswot),1,np.nan)
+
+## SSH score tables
+index=list(range(5,16))
+index.extend(range(25,36))
+index.extend(range(45,56))
+index.extend(range(65,76))
 # apply HPF to visualize Taylor diagrams only for small scales
-HR = AnDA_ssh_1.itrp_OI[:,:indLon,:indLat]
+HR = AnDA_ssh_1.itrp_OI[:,:indLat,:indLon]
 lr = np.copy(HR).reshape(HR.shape[0],-1)
 tmp = lr[0,:]
 sea_v2 = np.where(~np.isnan(tmp))[0]
@@ -714,21 +730,64 @@ mu_global = pca.mean_
 DataReconstructed_global = np.dot(score_global, coeff_global.T) +mu_global
 lr[:,sea_v2] = DataReconstructed_global
 lr = lr.reshape(HR.shape).flatten()
-series={'gt':AnDA_ssh_1.GT[:,:indLon,:indLat].flatten()-lr,
-        'OI_nadir':AnDA_ssh_1_nadir.itrp_OI[:,:indLon,:indLat].flatten()-lr,
-        'OI_nadirswot':AnDA_ssh_1_nadirswot.itrp_OI[:,:indLon,:indLat].flatten()-lr,
-        'AnDA_nadir':AnDA_ssh_1_nadir.itrp_AnDA[:,:indLon,:indLat].flatten()-lr,\
-        'AnDA_nadirswot':AnDA_ssh_1_nadirswot.itrp_AnDA[:,:indLon,:indLat].flatten()-lr,
-        'Post_AnDA_nadir':AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLon,:indLat].flatten()-lr,\
-        'Post_AnDA_nadirswot':AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLon,:indLat].flatten()-lr,
-        'FP_ConvAE_nadir':itrp_FP_ConvAE_nadir[:,:indLon,:indLat].flatten()-lr,\
-        'FP_ConvAE_nadirswot':itrp_FP_ConvAE_nadirswot[:,:indLon,:indLat].flatten()-lr,
-        'FP_GENN_nadir':itrp_FP_GENN_nadir[:,:indLon,:indLat].flatten()-lr,\
-        'FP_GENN_nadirswot':itrp_FP_GENN_nadirswot[:,:indLon,:indLat].flatten()-lr,
-        'VE_DINEOF_nadir':itrp_dineof_nadir[:,:indLon,:indLat].flatten()-lr,\
-        'VE_DINEOF_nadirswot':itrp_dineof_nadirswot[:,:indLon,:indLat].flatten()-lr}
+# create scores table
+tab_scores = np.zeros((10,3))
+tab_scores[0,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon].flatten()-lr)
+tab_scores[0,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon].flatten()-lr)
+tab_scores[0,2] = np.nan
+tab_scores[1,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
+tab_scores[1,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
+tab_scores[1,2] = np.nan
+tab_scores[2,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[2,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[2,2] = np.nan
+tab_scores[3,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[3,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[3,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_ConvAE_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[4,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[4,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[4,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[5,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr)
+tab_scores[5,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr)
+tab_scores[5,2] = np.nan
+tab_scores[6,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
+tab_scores[6,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
+tab_scores[6,2] = np.nan
+tab_scores[7,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[7,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[7,2] = np.nan
+tab_scores[8,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[8,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[8,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[9,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[9,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[9,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+np.savetxt(fname=workpath+"/tab_scores_SSH_2.txt",X=tab_scores,fmt='%2.2f')
+
+## Taylor diagrams
+resfile=workpath+"/Taylor_diagram.png"
+label=['GT',\
+       'OI (nadir)','OI (nadir+swot)',\
+       'AnDA (nadir)','AnDA (nadir+swot)',\
+       'Post-AnDA (nadir)','Post-AnDA (nadir+swot)',\
+       'FP-ConvAE (nadir)','FP-ConvAE (nadir+swot)',\
+       'FP-GENN (nadir)','FP-GENN (nadir+swot)',\
+       'VE-DINEOF (nadir)','VE-DINEOF (nadir+swot)']
+series={'gt':AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,
+        'OI_nadir':AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon].flatten()-lr,
+        'OI_nadirswot':AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr,
+        'AnDA_nadir':AnDA_ssh_1_nadir.itrp_AnDA[:,:indLat,:indLon].flatten()-lr,\
+        'AnDA_nadirswot':AnDA_ssh_1_nadirswot.itrp_AnDA[:,:indLat,:indLon].flatten()-lr,
+        'Post_AnDA_nadir':AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr,\
+        'Post_AnDA_nadirswot':AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr,
+        'FP_ConvAE_nadir':itrp_FP_ConvAE_nadir[:,:indLat,:indLon].flatten()-lr,\
+        'FP_ConvAE_nadirswot':itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr,
+        'FP_GENN_nadir':itrp_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr,\
+        'FP_GENN_nadirswot':itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr,
+        'VE_DINEOF_nadir':itrp_dineof_nadir[:,:indLat,:indLon].flatten()-lr,\
+        'VE_DINEOF_nadirswot':itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr}
 Taylor_diag(series,label,\
-            styles=['k','s','s','p','o','p','o','p','o','p','o','p','o'],\
+            styles=['k','p','o','p','o','p','o','p','o','p','o','p','o'],\
             colors=['k','y','y','mediumseagreen','mediumseagreen',\
                                 'seagreen','seagreen',\
                                 'steelblue','steelblue',\
@@ -738,7 +797,7 @@ plt.savefig(resfile)
 plt.close()
 
 ## Plot averaged RAPS
-resfile=workpath+"/results_AnDA_avg_RAPS.png"
+resfile=workpath+"/results_avg_RAPS.png"
 f_ref, Pf_GT                         = avg_raPsd2dv1(AnDA_ssh_1.GT,resssh,True)
 f0_nadir, Pf_OI_nadir                = avg_raPsd2dv1(AnDA_ssh_1_nadir.itrp_OI,resssh,True)
 f0_nadirswot, Pf_OI_nadirswot        = avg_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_OI,resssh,True)
@@ -791,7 +850,7 @@ plt.savefig(resfile)# save the figure
 plt.close() # close the figure
 
 ## Plot averaged RAPS (nadir)
-resfile=workpath+"/results_AnDA_avg_RAPS_nadir.png"
+resfile=workpath+"/results_avg_RAPS_nadir.png"
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(wf_ref[1:],Pf_GT[1:],label='GT')
@@ -812,7 +871,7 @@ plt.savefig(resfile)# save the figure
 plt.close() # close the figure
 
 ## Plot averaged RAPS (nadirswot)
-resfile=workpath+"/results_AnDA_avg_RAPS_nadirswot.png"
+resfile=workpath+"/results_avg_RAPS_nadirswot.png"
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(wf_ref[1:],Pf_GT[1:],label='GT')
@@ -833,19 +892,19 @@ plt.savefig(resfile)# save the figure
 plt.close() # close the figure
 
 ## Plot averaged normalize error RAPS
-resfile=workpath+"/results_diffAnDA_avg_RAPS.png"
-f0_nadir, Pf_OI_nadir                = avg_err_raPsd2dv1(AnDA_ssh_1_nadir.itrp_OI[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f0_nadirswot, Pf_OI_nadirswot        = avg_err_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_OI[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f1_nadir, Pf_AnDA_nadir              = avg_err_raPsd2dv1(AnDA_ssh_1_nadir.itrp_AnDA[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f1_nadirswot, Pf_AnDA_nadirswot      = avg_err_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_AnDA[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f2_nadir, Pf_postAnDA_nadir          = avg_err_raPsd2dv1(AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f2_nadirswot, Pf_postAnDA_nadirswot  = avg_err_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f3_nadir, Pf_VE_DINEOF_nadir         = avg_err_raPsd2dv1(itrp_dineof_nadir[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f3_nadirswot,Pf_VE_DINEOF_nadirswot  = avg_err_raPsd2dv1(itrp_dineof_nadirswot[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f4_nadir, Pf_FP_ConvAE_nadir         = avg_err_raPsd2dv1(itrp_FP_ConvAE_nadir[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f4_nadirswot, Pf_FP_ConvAE_nadirswot = avg_err_raPsd2dv1(itrp_FP_ConvAE_nadirswot[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f5_nadir, Pf_FP_GENN_nadir           = avg_err_raPsd2dv1(itrp_FP_GENN_nadir[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f5_nadirswot, Pf_FP_GENN_nadirswot   = avg_err_raPsd2dv1(itrp_FP_GENN_nadirswot[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
+resfile=workpath+"/results_diff_avg_RAPS.png"
+f0_nadir, Pf_OI_nadir                = avg_err_raPsd2dv1(AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f0_nadirswot, Pf_OI_nadirswot        = avg_err_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f1_nadir, Pf_AnDA_nadir              = avg_err_raPsd2dv1(AnDA_ssh_1_nadir.itrp_AnDA[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f1_nadirswot, Pf_AnDA_nadirswot      = avg_err_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_AnDA[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f2_nadir, Pf_postAnDA_nadir          = avg_err_raPsd2dv1(AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f2_nadirswot, Pf_postAnDA_nadirswot  = avg_err_raPsd2dv1(AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f3_nadir, Pf_VE_DINEOF_nadir         = avg_err_raPsd2dv1(itrp_dineof_nadir[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f3_nadirswot,Pf_VE_DINEOF_nadirswot  = avg_err_raPsd2dv1(itrp_dineof_nadirswot[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f4_nadir, Pf_FP_ConvAE_nadir         = avg_err_raPsd2dv1(itrp_FP_ConvAE_nadir[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f4_nadirswot, Pf_FP_ConvAE_nadirswot = avg_err_raPsd2dv1(itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f5_nadir, Pf_FP_GENN_nadir           = avg_err_raPsd2dv1(itrp_FP_GENN_nadir[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f5_nadirswot, Pf_FP_GENN_nadirswot   = avg_err_raPsd2dv1(itrp_FP_GENN_nadirswot[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
 wf0_nadir = 1/f0_nadir
 wf0_nadirswot = 1/f0_nadirswot
 wf1_nadir   = 1/f1_nadir
@@ -883,7 +942,7 @@ plt.savefig(resfile)# save the figure
 plt.close() # close the figure
 
 ## Plot averaged normalize error RAPS (nadir)
-resfile=workpath+"/results_diffAnDA_avg_RAPS_nadir.png"
+resfile=workpath+"/results_diff_avg_RAPS_nadir.png"
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(wf0_nadir[1:],Pf_OI_nadir[1:],linestyle='solid',color='red',linewidth=.5,label='OI (nadir)')
@@ -904,7 +963,7 @@ plt.close() # close the figure
 
 
 ## Plot averaged normalize error RAPS (nadirswot)
-resfile=workpath+"/results_diffAnDA_avg_RAPS_nadirswot.png"
+resfile=workpath+"/results_diff_avg_RAPS_nadirswot.png"
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(wf0_nadirswot[1:],Pf_OI_nadirswot[1:],linestyle='solid',color='red',linewidth=.5,label='OI (nadir+swot)')
@@ -928,7 +987,6 @@ ymax_ = np.ceil(np.max([nrmse_OI_nadir, nrmse_OI_nadirswot, nrmse_Post_AnDA_nadi
                 nrmse_Post_AnDA_nadirswot,nrmse_VE_DINEOF_nadirswot,nrmse_FP_ConvAE_nadirswot,nrmse_FP_GENN_nadirswot])*100)/100
 
 N = len(lday)
-print(N)
 # first axis with nRMSE time series
 plt.plot(range(N),nrmse_OI_nadir,linestyle='solid',color='red',linewidth=2,label='OI (nadir)')
 plt.plot(range(N),nrmse_Post_AnDA_nadir,linestyle='solid',color='seagreen',linewidth=1,label='post-AnDA (nadir)')
@@ -962,13 +1020,12 @@ p2 = axes2.bar(range(N), nadswotcov-nadcov, width,bottom=nadcov,color='g',alpha=
 axes2.set_ylim(0, 1)
 axes2.set_ylabel('Spatial Coverage (%)')
 axes2.margins(x=0)
-resfile=workpath+"/TS_AnDA_nRMSE.png"
+resfile=workpath+"/TS_nRMSE.png"
 plt.savefig(resfile,bbox_inches="tight")    # save the figure
 plt.close()         	# close the figure
 
 ## Plot time series (nadir)
 N = len(lday)
-print(N)
 # first axis with nRMSE time series
 plt.plot(range(N),nrmse_OI_nadir,linestyle='solid',color='red',linewidth=2,label='OI (nadir)')
 plt.plot(range(N),nrmse_Post_AnDA_nadir,linestyle='solid',color='seagreen',linewidth=1,label='post-AnDA (nadir)')
@@ -997,13 +1054,12 @@ p2 = axes2.bar(range(N), nadswotcov-nadcov, width,bottom=nadcov,color='g',alpha=
 axes2.set_ylim(0, 1)
 axes2.set_ylabel('Spatial Coverage (%)')
 axes2.margins(x=0)
-resfile=workpath+"/TS_AnDA_nRMSE_nadir.png"
+resfile=workpath+"/TS_nRMSE_nadir.png"
 plt.savefig(resfile,bbox_inches="tight")    # save the figure
 plt.close()             # close the figure
 
 ## Plot time series (nadir/swot)
 N = len(lday)
-print(N)
 # first axis with nRMSE time series
 plt.plot(range(N),nrmse_OI_nadirswot,linestyle='solid',color='red',linewidth=2,label='OI (nadir+swot)')
 plt.plot(range(N),nrmse_Post_AnDA_nadirswot,linestyle='solid',color='seagreen',linewidth=1,label='post-AnDA (nadir+swot)')
@@ -1032,9 +1088,117 @@ p2 = axes2.bar(range(N), nadswotcov-nadcov, width,bottom=nadcov,color='g',alpha=
 axes2.set_ylim(0, 1)
 axes2.set_ylabel('Spatial Coverage (%)')
 axes2.margins(x=0)
-resfile=workpath+"/TS_AnDA_nRMSE_nadirswot.png"
+resfile=workpath+"/TS_nRMSE_nadirswot.png"
 plt.savefig(resfile,bbox_inches="tight")    # save the figure
 plt.close()             # close the figure
+
+
+ymax_ = np.ceil(np.max([nrmse_Grad_OI_nadir, nrmse_Grad_OI_nadirswot, nrmse_Grad_Post_AnDA_nadir, nrmse_Grad_VE_DINEOF_nadir, nrmse_Grad_FP_ConvAE_nadir, nrmse_Grad_FP_GENN_nadir,\
+                nrmse_Grad_Post_AnDA_nadirswot,nrmse_Grad_VE_DINEOF_nadirswot,nrmse_Grad_FP_ConvAE_nadirswot,nrmse_Grad_FP_GENN_nadirswot])*100)/100
+# first axis with nRMSE time series
+plt.plot(range(N),nrmse_Grad_OI_nadir,linestyle='solid',color='red',linewidth=2,label=r"$\nabla_{OI}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_Post_AnDA_nadir,linestyle='solid',color='seagreen',linewidth=1,label=r"$\nabla_{Post-AnDA}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadir,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadir,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_FP_GENN_nadir,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_OI_nadirswot,linestyle='dashdot',color='red',linewidth=2,label=r"$\nabla_{OI}$ (nadir+swot)")
+plt.plot(range(N),nrmse_Grad_Post_AnDA_nadirswot,linestyle='dashdot',color='seagreen',linewidth=1,label=r"$\nabla_{AnDA} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadirswot,linestyle='dashdot',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadirswot,linestyle='dashdot',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_FP_GENN_nadirswot,linestyle='dashdot',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN} (nadir+swot)$")
+# add vertical bar to divide the 4 periods
+plt.axvline(x=19)
+plt.axvline(x=39)
+plt.axvline(x=59)
+# graphical options
+plt.ylim(0,ymax_)
+plt.ylabel('nRMSE')
+plt.xlabel('Time (days)')
+plt.xticks([0,20,40,60],\
+           [lday[0],lday[20],lday[40],lday[60]],\
+           rotation=45, ha='right')
+plt.margins(x=0)
+plt.grid(True,alpha=.3)
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+# second axis with spatial coverage
+axes2 = plt.twinx()
+width=0.75
+p1 = axes2.bar(range(N), nadcov, width,color='r',alpha=0.25)
+p2 = axes2.bar(range(N), nadswotcov-nadcov, width,bottom=nadcov,color='g',alpha=0.25)
+axes2.set_ylim(0, 1)
+axes2.set_ylabel('Spatial Coverage (%)')
+axes2.margins(x=0)
+resfile=workpath+"/TS_nRMSE_Grad.png"
+plt.savefig(resfile,bbox_inches="tight")    # save the figure
+plt.close()         	# close the figure
+
+## Plot time series (nadir)
+N = len(lday)
+# first axis with nRMSE time series
+plt.plot(range(N),nrmse_Grad_OI_nadir,linestyle='solid',color='red',linewidth=2,label=r"$\nabla_{OI}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_Post_AnDA_nadir,linestyle='solid',color='seagreen',linewidth=1,label=r"$\nabla_{Post-AnDA}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadir,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadir,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_FP_GENN_nadir,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN}$ (nadir)")
+# add vertical bar to divide the 4 periods
+plt.axvline(x=19)
+plt.axvline(x=39)
+plt.axvline(x=59)
+# graphical options
+plt.ylim(0,ymax_)
+plt.ylabel('nRMSE')
+plt.xlabel('Time (days)')
+plt.xticks([0,20,40,60],\
+           [lday[0],lday[20],lday[40],lday[60]],\
+           rotation=45, ha='right')
+plt.margins(x=0)
+plt.grid(True,alpha=.3)
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+# second axis with spatial coverage
+axes2 = plt.twinx()
+width=0.75
+p1 = axes2.bar(range(N), nadcov, width,color='r',alpha=0.25)
+p2 = axes2.bar(range(N), nadswotcov-nadcov, width,bottom=nadcov,color='g',alpha=0.25)
+axes2.set_ylim(0, 1)
+axes2.set_ylabel('Spatial Coverage (%)')
+axes2.margins(x=0)
+resfile=workpath+"/TS_nRMSE_nadir_Grad.png"
+plt.savefig(resfile,bbox_inches="tight")    # save the figure
+plt.close()             # close the figure
+
+## Plot time series (nadir/swot)
+N = len(lday)
+# first axis with nRMSE time series
+plt.plot(range(N),nrmse_Grad_OI_nadirswot,linestyle='solid',color='red',linewidth=2,label=r"$\nabla_{OI}$ (nadir+swot)")
+plt.plot(range(N),nrmse_Grad_Post_AnDA_nadirswot,linestyle='solid',color='seagreen',linewidth=1,label=r"$\nabla_{Post-AnDA}$ (nadir+swot)")
+plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadirswot,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadirswot,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_FP_GENN_nadirswot,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN} (nadir+swot)$")
+# add vertical bar to divide the 4 periods
+plt.axvline(x=19)
+plt.axvline(x=39)
+plt.axvline(x=59)
+# graphical options
+plt.ylim(0,ymax_)
+plt.ylabel('nRMSE')
+plt.xlabel('Time (days)')
+plt.xticks([0,20,40,60],\
+           [lday[0],lday[20],lday[40],lday[60]],\
+           rotation=45, ha='right')
+plt.margins(x=0)
+plt.grid(True,alpha=.3)
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+# second axis with spatial coverage
+axes2 = plt.twinx()
+width=0.75
+p1 = axes2.bar(range(N), nadcov, width,color='r',alpha=0.25)
+p2 = axes2.bar(range(N), nadswotcov-nadcov, width,bottom=nadcov,color='g',alpha=0.25)
+axes2.set_ylim(0, 1)
+axes2.set_ylabel('Spatial Coverage (%)')
+axes2.margins(x=0)
+resfile=workpath+"/TS_nRMSE_nadirswot_Grad.png"
+plt.savefig(resfile,bbox_inches="tight")    # save the figure
+plt.close()      
 
 
 

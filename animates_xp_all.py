@@ -32,7 +32,9 @@ def mk_dir_recursive(dir_path):
 AnDA_lag = sys.argv[1]
 NN_lag   = sys.argv[2]
 type_obs = sys.argv[3]
+domain   = sys.argv[4] 
 workpath = "/home3/scratch/mbeaucha/animates_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
+scratchpath = '/home3/scratch/mbeaucha/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:
@@ -40,97 +42,103 @@ else:
     mk_dir_recursive(workpath)
 
 # Reload saved AnDA result
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir = AnDA_ssh_1
     itrp_dineof_nadir = itrp_dineof
-file_results_swot='/home3/scratch/mbeaucha/resAnDA_swot_nadlag_0_'+type_obs+'/saved_path.pickle'
+file_results_swot=scratchpath+'/resAnDA_swot_nadlag_0_'+type_obs+'/saved_path.pickle'
 with open(file_results_swot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_swot = AnDA_ssh_1
     itrp_dineof_swot = itrp_dineof
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot = AnDA_ssh_1
     itrp_dineof_nadirswot = itrp_dineof
 
 # Reload saved ConvAE and GE-NN results
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot = pickle.load(handle)[2]
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot = pickle.load(handle)[2]
 
 # 6-plots video individual maps
-lon = np.arange(-65,-55,1/20)
-lat = np.arange(30,40,1/20)
-indLat = np.arange(0,200)
-indLon = np.arange(0,200)
-lon = lon[indLon]
-lat = lat[indLat]
-extent_=[np.min(lon),np.max(lon),np.min(lat),np.max(lat)]
-
-indLon=200
-indLat=200
+if domain=="OSMOSIS":
+    extent     = [-19.5,-11.5,45.,55.]
+    indLat     = 200
+    indLon     = 160
+elif domain=='GULFSTREAM':
+    extent     = [-65.,-55.,33.,43.]
+    indLat     = 200
+    indLon     = 200
+else:
+    extent=[-65.,-55.,30.,40.]
+    indLat     = 200
+    indLon     = 200
+lon = np.arange(extent[0],extent[1],1/20)
+lat = np.arange(extent[2],extent[3],1/20)
+lon = lon[:indLon]
+lat = lat[:indLat]
 
 # Compute GT gradient
 Grad_gt=np.zeros((len(AnDA_ssh_1.GT),indLon,indLat))
 for i in range(len(AnDA_ssh_1.GT)):
-    Grad_gt[i,:,:] = Gradient(AnDA_ssh_1.GT[i,:indLon,:indLat],2)
+    Grad_gt[i,:,:] = Gradient(AnDA_ssh_1.GT[i,:indLat,:indLon],2)
 
 def init(tobs):
     print(tobs)
     global fig, ax
     # Load data
-    gt                          = AnDA_ssh_1.GT[0,:indLon,:indLat]
+    gt                          = AnDA_ssh_1.GT[0,:indLat,:indLon]
     Grad_gt                     = Gradient(gt,2)
-    OI                          = AnDA_ssh_1.itrp_OI[0,:indLon,:indLat]
+    OI                          = AnDA_ssh_1.itrp_OI[0,:indLat,:indLon]
     Grad_OI                     = Gradient(OI,2)
-    obs                         = eval("AnDA_ssh_1_"+tobs).Obs[0,:indLon,:indLat]
+    obs                         = eval("AnDA_ssh_1_"+tobs).Obs[0,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
-    Post_AnDA                   = eval("AnDA_ssh_1_"+tobs).itrp_postAnDA[0,:indLon,:indLat]
+    Post_AnDA                   = eval("AnDA_ssh_1_"+tobs).itrp_postAnDA[0,:indLat,:indLon]
     Grad_Post_AnDA              = Gradient(Post_AnDA,2)
-    FP_ConvAE                   = eval("itrp_FP_ConvAE_"+tobs)[0,:indLon,:indLat]
+    FP_ConvAE                   = eval("itrp_FP_ConvAE_"+tobs)[0,:indLat,:indLon]
     Grad_FP_ConvAE              = Gradient(FP_ConvAE,2)
-    FP_GENN                     = eval("itrp_FP_GENN_"+tobs)[0,:indLon,:indLat]
+    FP_GENN                     = eval("itrp_FP_GENN_"+tobs)[0,:indLat,:indLon]
     Grad_FP_GENN                = Gradient(FP_GENN,2)
     for ivar in range(len(var)):
         ii = int(np.floor(ivar/3))
         jj = int(np.floor(ivar%3))
         plot(ax,ii,jj,lon,lat,eval(var[ivar]),title[ivar],\
-              extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=True,\
+              extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=True,\
               orientation="vertical")
 
 def animate(i,tobs):
     global fig, ax
     # Load data
-    gt                          = AnDA_ssh_1.GT[i,:indLon,:indLat]
+    gt                          = AnDA_ssh_1.GT[i,:indLat,:indLon]
     Grad_gt                     = Gradient(gt,2)
-    OI                          = AnDA_ssh_1.itrp_OI[i,:indLon,:indLat]
+    OI                          = AnDA_ssh_1.itrp_OI[i,:indLat,:indLon]
     Grad_OI                     = Gradient(OI,2)
-    obs                         = eval("AnDA_ssh_1_"+tobs).Obs[i,:indLon,:indLat]
+    obs                         = eval("AnDA_ssh_1_"+tobs).Obs[i,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
-    Post_AnDA                   = eval("AnDA_ssh_1_"+tobs).itrp_postAnDA[i,:indLon,:indLat]
+    Post_AnDA                   = eval("AnDA_ssh_1_"+tobs).itrp_postAnDA[i,:indLat,:indLon]
     Grad_Post_AnDA              = Gradient(Post_AnDA,2)
-    FP_ConvAE                   = eval("itrp_FP_ConvAE_"+tobs)[i,:indLon,:indLat]
+    FP_ConvAE                   = eval("itrp_FP_ConvAE_"+tobs)[i,:indLat,:indLon]
     Grad_FP_ConvAE              = Gradient(FP_ConvAE,2)
-    FP_GENN                     = eval("itrp_FP_GENN_"+tobs)[i,:indLon,:indLat]
+    FP_GENN                     = eval("itrp_FP_GENN_"+tobs)[i,:indLat,:indLon]
     Grad_FP_GENN                = Gradient(FP_GENN,2)
     for ivar in range(len(var)):   
         ii = int(np.floor(ivar/3))
         jj = int(np.floor(ivar%3))
         ax[ii][jj].cla()
         plot(ax,ii,jj,lon,lat,eval(var[ivar]),title[ivar],\
-              extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
+              extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
     return fig, ax
 
 # for nadir

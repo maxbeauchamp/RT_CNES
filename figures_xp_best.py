@@ -31,7 +31,9 @@ def mk_dir_recursive(dir_path):
         os.mkdir(new_path)
 
 type_obs = sys.argv[1]
-workpath = "/home3/scratch/mbeaucha/scores_final_"+type_obs
+domain   = sys.argv[2]
+workpath = "/home3/scratch/mbeaucha/"+domain+"scores_final_"+type_obs
+scratchpath = '/home3/scratch/mbeaucha/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:
@@ -39,13 +41,13 @@ else:
     mk_dir_recursive(workpath)    
 
 # Reload AnDA results (for GT and OI)
-file_results_AnDA='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_0_'+type_obs+'/saved_path.pickle'
+file_results_AnDA=scratchpath+'/resAnDA_nadirswot_nadlag_0_'+type_obs+'/saved_path.pickle'
 with open(file_results_AnDA, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
 
 
 # Reload GE-NN results
-file_results_GENN='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_GENN=scratchpath+'/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_GENN, 'rb') as handle:
     itrp_FP_GENN = pickle.load(handle)[2]
 
@@ -53,13 +55,22 @@ with open(file_results_GENN, 'rb') as handle:
 			# Display results #
 			#*****************#
 
-lon = np.arange(-65,-55,1/20)
-lat = np.arange(30,40,1/20)
-indLat  = np.arange(0,200)
-indLon  = np.arange(0,200)
-lon = lon[indLon]
-lat = lat[indLat]
-extent_ = [np.min(lon),np.max(lon),np.min(lat),np.max(lat)]
+if domain=="OSMOSIS":
+    extent     = [-19.5,-11.5,45.,55.]
+    indLat     = 200
+    indLon     = 160
+elif domain=='GULFSTREAM':
+    extent     = [-65.,-55.,33.,43.]
+    indLat     = 200
+    indLon     = 200
+else:
+    extent=[-65.,-55.,30.,40.]
+    indLat     = 200
+    indLon     = 200
+lon = np.arange(extent[0],extent[1],1/20)
+lat = np.arange(extent[2],extent[3],1/20)
+lon = lon[:indLon]
+lat = lat[:indLat]
 
 ## Init variables for temporal analysis
 nrmse_OI=np.zeros(len(AnDA_ssh_1.GT))
@@ -83,25 +94,23 @@ lday = np.concatenate([lday1,lday2,lday3,lday4])
 lday2 = [ datetime.strptime(lday[i],'%Y-%m-%d') for i in range(len(lday)) ] 
 
 ## Spatial analysis
-indLon=200
-indLat=200
 
 for i in range(0,len(AnDA_ssh_1.GT)):
 
     day=lday[i]
     print(day)
     # Load data
-    gt 				= AnDA_ssh_1.GT[i,:indLon,:indLat]
+    gt 				= AnDA_ssh_1.GT[i,:indLat,:indLon]
     Grad_gt             	= Gradient(gt,2)
-    OI                          = AnDA_ssh_1.itrp_OI[i,:indLon,:indLat]
+    OI                          = AnDA_ssh_1.itrp_OI[i,:indLat,:indLon]
     Grad_OI                     = Gradient(OI,2)
-    obs                         = AnDA_ssh_1.Obs[i,:indLon,:indLat]
+    obs                         = AnDA_ssh_1.Obs[i,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
-    VE_DINEOF                   = itrp_dineof[i,:indLon,:indLat]
+    VE_DINEOF                   = itrp_dineof[i,:indLat,:indLon]
     Grad_VE_DINEOF              = Gradient(VE_DINEOF,2)
-    Post_AnDA                   = AnDA_ssh_1.itrp_postAnDA[i,:indLon,:indLat]
+    Post_AnDA                   = AnDA_ssh_1.itrp_postAnDA[i,:indLat,:indLon]
     Grad_Post_AnDA              = Gradient(Post_AnDA,2)
-    FP_GENN                     = itrp_FP_GENN[i,:indLon,:indLat]
+    FP_GENN                     = itrp_FP_GENN[i,:indLat,:indLon]
     Grad_FP_GENN                = Gradient(FP_GENN,2)
 
     ## Compute spatial coverage
@@ -122,12 +131,12 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     vmin = np.nanmin(gt) ; vmax = np.nanmax(gt)
     cmap="coolwarm"
     plot(ax,0,0,lon,lat,gt,'GT',\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     for ivar in range(1,len(var)+1):
         i = int(np.floor(ivar/3))
         j = int(np.floor(ivar%3))
         plot(ax,i,j,lon,lat,eval(var[ivar-1]),title[ivar-1],\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     plt.subplots_adjust(hspace=0.3,wspace=0.5)
     resfile=workpath+"/results_final_maps_"+day+".png"
     plt.savefig(resfile)       # save the figure
@@ -142,12 +151,12 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     vmin = np.nanmin(Grad_gt) ; vmax = np.nanmax(Grad_gt)
     cmap="viridis"
     plot(ax,0,0,lon,lat,Grad_gt,r"$\nabla_{GT}$",\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     for ivar in range(1,len(var)+1):
         i = int(np.floor(ivar/3))
         j = int(np.floor(ivar%3))
         plot(ax,i,j,lon,lat,eval(var[ivar-1]),title[ivar-1],\
-             extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax)
+             extent=extent,cmap=cmap,vmin=vmin,vmax=vmax)
     plt.subplots_adjust(hspace=0.3,wspace=0.5)
     resfile=workpath+"/results_final_grads_"+day+".png"
     plt.savefig(resfile)       # save the figure
@@ -175,7 +184,7 @@ np.savetxt(fname=workpath+"/tab_scores.txt",X=tab_scores,fmt='%2.2f')
 
 ## Taylor diagrams ##
 # apply HPF to filter out large scale components
-HR = AnDA_ssh_1.itrp_OI[:,:indLon,:indLat]
+HR = AnDA_ssh_1.itrp_OI[:,:indLat,:indLon]
 lr = np.copy(HR).reshape(HR.shape[0],-1)
 tmp = lr[0,:]
 sea_v2 = np.where(~np.isnan(tmp))[0]
@@ -195,11 +204,11 @@ label=['GT',\
        'Post-AnDA',\
        'FP-GENN',\
        'VE-DINEOF']
-series={'gt':AnDA_ssh_1.GT[:,:indLon,:indLat].flatten()-lr,
-        'OI':AnDA_ssh_1.itrp_OI[:,:indLon,:indLat].flatten()-lr,
-        'Post_AnDA':AnDA_ssh_1.itrp_postAnDA[:,:indLon,:indLat].flatten()-lr,
-        'FP_GENN':itrp_FP_GENN[:,:indLon,:indLat].flatten()-lr,
-        'VE_DINEOF':itrp_dineof[:,:indLon,:indLat].flatten()-lr}
+series={'gt':AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,
+        'OI':AnDA_ssh_1.itrp_OI[:,:indLat,:indLon].flatten()-lr,
+        'Post_AnDA':AnDA_ssh_1.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr,
+        'FP_GENN':itrp_FP_GENN[:,:indLat,:indLon].flatten()-lr,
+        'VE_DINEOF':itrp_dineof[:,:indLat,:indLon].flatten()-lr}
 Taylor_diag(series,label,\
             styles=['k','s','p','h','o'],\
             colors=['k','red','seagreen','darkorange','steelblue'])
@@ -209,11 +218,11 @@ plt.close()
 resssh=4
 ## Plot averaged RAPS ##
 resfile=workpath+"/results_AnDA_avg_RAPS.png"
-f_ref, Pf_GT     = avg_raPsd2dv1(AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f0, Pf_OI        = avg_raPsd2dv1(AnDA_ssh_1.itrp_OI[:,:indLon,:indLat],resssh,True)
-f1, Pf_postAnDA  = avg_raPsd2dv1(AnDA_ssh_1.itrp_postAnDA[:,:indLon,:indLat],resssh,True)
-f2, Pf_VE_DINEOF = avg_raPsd2dv1(itrp_dineof[:,:indLon,:indLat],resssh,True)
-f3, Pf_FP_GENN   = avg_raPsd2dv1(itrp_FP_GENN[:,:indLon,:indLat],resssh,True)
+f_ref, Pf_GT     = avg_raPsd2dv1(AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f0, Pf_OI        = avg_raPsd2dv1(AnDA_ssh_1.itrp_OI[:,:indLat,:indLon],resssh,True)
+f1, Pf_postAnDA  = avg_raPsd2dv1(AnDA_ssh_1.itrp_postAnDA[:,:indLat,:indLon],resssh,True)
+f2, Pf_VE_DINEOF = avg_raPsd2dv1(itrp_dineof[:,:indLat,:indLon],resssh,True)
+f3, Pf_FP_GENN   = avg_raPsd2dv1(itrp_FP_GENN[:,:indLat,:indLon],resssh,True)
 wf_ref = 1/f_ref
 wf0    = 1/f0
 wf1    = 1/f1
@@ -240,10 +249,10 @@ plt.close() # close the figure
 resfile=workpath+"/results_diffAnDA_avg_RAPS.png"
 fig = plt.figure()
 ax = fig.add_subplot(111)
-f0, Pf_OI        = avg_err_raPsd2dv1(AnDA_ssh_1.itrp_OI[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f1, Pf_postAnDA  = avg_err_raPsd2dv1(AnDA_ssh_1.itrp_postAnDA[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f2, Pf_VE_DINEOF = avg_err_raPsd2dv1(itrp_dineof[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
-f3, Pf_FP_GENN   = avg_err_raPsd2dv1(itrp_FP_GENN[:,:indLon,:indLat],AnDA_ssh_1.GT[:,:indLon,:indLat],resssh,True)
+f0, Pf_OI        = avg_err_raPsd2dv1(AnDA_ssh_1.itrp_OI[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f1, Pf_postAnDA  = avg_err_raPsd2dv1(AnDA_ssh_1.itrp_postAnDA[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f2, Pf_VE_DINEOF = avg_err_raPsd2dv1(itrp_dineof[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f3, Pf_FP_GENN   = avg_err_raPsd2dv1(itrp_FP_GENN[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
 wf0    = 1/f0
 wf1    = 1/f1
 wf2    = 1/f2
@@ -300,46 +309,46 @@ plt.close()         	# close the figure
 def init():
     global fig, ax
     # Load data
-    gt                          = AnDA_ssh_1.GT[0,:indLon,:indLat]
+    gt                          = AnDA_ssh_1.GT[0,:indLat,:indLon]
     Grad_gt                     = Gradient(gt,2)
-    OI                          = AnDA_ssh_1.itrp_OI[0,:indLon,:indLat]
+    OI                          = AnDA_ssh_1.itrp_OI[0,:indLat,:indLon]
     Grad_OI                     = Gradient(OI,2)
-    obs                         = AnDA_ssh_1.Obs[0,:indLon,:indLat]
+    obs                         = AnDA_ssh_1.Obs[0,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
-    Post_AnDA                   = AnDA_ssh_1.itrp_postAnDA[0,:indLon,:indLat]
+    Post_AnDA                   = AnDA_ssh_1.itrp_postAnDA[0,:indLat,:indLon]
     Grad_Post_AnDA              = Gradient(Post_AnDA,2)
-    FP_GENN                     = itrp_FP_GENN[0,:indLon,:indLat]
+    FP_GENN                     = itrp_FP_GENN[0,:indLat,:indLon]
     Grad_FP_GENN                = Gradient(FP_GENN,2)
-    VE_DINEOF                   = itrp_dineof[0,:indLon,:indLat]
+    VE_DINEOF                   = itrp_dineof[0,:indLat,:indLon]
     Grad_VE_DINEOF              = Gradient(VE_DINEOF,2)
     for ivar in range(len(var)):
         ii = int(np.floor(ivar/3))
         jj = int(np.floor(ivar%3))
         plot(ax,ii,jj,lon,lat,eval(var[ivar]),title[ivar],\
-              extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=True,\
+              extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=True,\
               orientation="vertical")
 
 def animate(i):
     global fig, ax
     # Load data
-    gt                          = AnDA_ssh_1.GT[i,:indLon,:indLat]
+    gt                          = AnDA_ssh_1.GT[i,:indLat,:indLon]
     Grad_gt                     = Gradient(gt,2)
-    OI                          = AnDA_ssh_1.itrp_OI[i,:indLon,:indLat]
+    OI                          = AnDA_ssh_1.itrp_OI[i,:indLat,:indLon]
     Grad_OI                     = Gradient(OI,2)
-    obs                         = AnDA_ssh_1.Obs[i,:indLon,:indLat]
+    obs                         = AnDA_ssh_1.Obs[i,:indLat,:indLon]
     Grad_obs                    = Gradient(obs,2)
-    Post_AnDA                   = AnDA_ssh_1.itrp_postAnDA[i,:indLon,:indLat]
+    Post_AnDA                   = AnDA_ssh_1.itrp_postAnDA[i,:indLat,:indLon]
     Grad_Post_AnDA              = Gradient(Post_AnDA,2)
-    FP_GENN                     = itrp_FP_GENN[i,:indLon,:indLat]
+    FP_GENN                     = itrp_FP_GENN[i,:indLat,:indLon]
     Grad_FP_GENN                = Gradient(FP_GENN,2)
-    VE_DINEOF                   = itrp_dineof[i,:indLon,:indLat]
+    VE_DINEOF                   = itrp_dineof[i,:indLat,:indLon]
     Grad_VE_DINEOF              = Gradient(VE_DINEOF,2)
     for ivar in range(len(var)):
         ii = int(np.floor(ivar/3))
         jj = int(np.floor(ivar%3))
         ax[ii][jj].cla()
         plot(ax,ii,jj,lon,lat,eval(var[ivar]),title[ivar],\
-              extent=extent_,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
+              extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
     return fig, ax
 
 var=['gt','obs',\

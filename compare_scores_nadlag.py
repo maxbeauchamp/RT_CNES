@@ -24,7 +24,9 @@ def mk_dir_recursive(dir_path):
         os.mkdir(new_path)
 
 type_obs = sys.argv[1]
+domain   = sys.argv[2] 
 workpath = "/home3/scratch/mbeaucha/compare_scores_nadlag_"+type_obs
+scratchpath = '/home3/scratch/mbeaucha/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:
@@ -33,145 +35,145 @@ else:
 
 ## Reload saved AnDA result
 # NADLAG = 0
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_0_'+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_0_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir_0 = AnDA_ssh_1  
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_0_'+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_0_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot_0 = AnDA_ssh_1  
 '''# NADLAG = 1
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_1_'+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_1_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir_1 = AnDA_ssh_1
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_1_'+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_1_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot_1 = AnDA_ssh_1
 # NADLAG = 2
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_2_'+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_2_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir_2 = AnDA_ssh_1
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_2_'+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_2_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot_2 = AnDA_ssh_1
 # NADLAG = 3
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_3_'+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_3_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir_3 = AnDA_ssh_1
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_3_'+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_3_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot_3 = AnDA_ssh_1
 # NADLAG = 4
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_4_'+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_4_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir_4 = AnDA_ssh_1
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_4_'+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_4_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot_4 = AnDA_ssh_1'''
 # NADLAG = 5
-file_results_nadir='/home3/scratch/mbeaucha/resAnDA_nadir_nadlag_5_'+type_obs+'/saved_path.pickle'
+file_results_nadir=scratchpath+'/resAnDA_nadir_nadlag_5_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir_5 = AnDA_ssh_1
-file_results_nadirswot='/home3/scratch/mbeaucha/resAnDA_nadirswot_nadlag_5_'+type_obs+'/saved_path.pickle'
+file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_5_'+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadirswot_5 = AnDA_ssh_1
 
 ## Reload saved ConVAE result
 # NADLAG = 0
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_0_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_0_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir_0 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_0_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_0_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot_0 = pickle.load(handle)[2]
 '''# NADLAG = 1
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_1_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_1_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir_1 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_1_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_1_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot_1 = pickle.load(handle)[2]
 # NADLAG = 2
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_2_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_2_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir_2 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_2_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_2_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot_2 = pickle.load(handle)[2]
 # NADLAG = 3
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_3_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_3_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir_3 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_3_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_3_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot_3 = pickle.load(handle)[2]
 # NADLAG = 4
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_4_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_4_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir_4 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_4_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_4_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot_4 = pickle.load(handle)[2]'''
 # NADLAG = 5
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_5_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_5_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_ConvAE_nadir_5 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot_5 = pickle.load(handle)[2]
 
 ## Reload saved GENN result
 # NADLAG = 0
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_0 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_0 = pickle.load(handle)[2]
 '''# NADLAG = 1
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_1_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_1_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_1 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_1_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_1_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_1 = pickle.load(handle)[2]
 # NADLAG = 2
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_2_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_2_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_2 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_2_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_2_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_2 = pickle.load(handle)[2]
 # NADLAG = 3
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_3_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_3_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_3 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_3_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_3_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_3 = pickle.load(handle)[2]
 # NADLAG = 4
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_4_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_4_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_4 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_4_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_4_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_4 = pickle.load(handle)[2]'''
 # NADLAG = 5
-file_results_nadir='/home3/scratch/mbeaucha/resIA_nadir_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_5 = pickle.load(handle)[2]
-file_results_nadirswot='/home3/scratch/mbeaucha/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_5 = pickle.load(handle)[2]
 
