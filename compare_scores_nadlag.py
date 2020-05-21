@@ -25,8 +25,8 @@ def mk_dir_recursive(dir_path):
 
 type_obs = sys.argv[1]
 domain   = sys.argv[2] 
-workpath = "/home3/scratch/mbeaucha/compare_scores_nadlag_"+type_obs
-scratchpath = '/home3/scratch/mbeaucha/'+domain
+workpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain+'/compare_scores_nadlag_'+type_obs
+scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:
@@ -135,10 +135,10 @@ with open(file_results_nadirswot, 'rb') as handle:
 
 ## Reload saved GENN result
 # NADLAG = 0
-file_results_nadir=scratchpath+'/resIA_nadir_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_014_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_0 = pickle.load(handle)[2]
-file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_0_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_014_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_0 = pickle.load(handle)[2]
 '''# NADLAG = 1
@@ -170,10 +170,10 @@ file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_4_'+type_obs+'/FP_GE
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_4 = pickle.load(handle)[2]'''
 # NADLAG = 5
-file_results_nadir=scratchpath+'/resIA_nadir_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_014_FP_GENN_womissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir_5 = pickle.load(handle)[2]
-file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_womissing_wocov/saved_path_014_FP_GENN_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot_5 = pickle.load(handle)[2]
 

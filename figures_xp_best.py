@@ -30,10 +30,11 @@ def mk_dir_recursive(dir_path):
     if not os.path.isdir(new_path):
         os.mkdir(new_path)
 
-type_obs = sys.argv[1]
-domain   = sys.argv[2]
-workpath = "/home3/scratch/mbeaucha/"+domain+"scores_final_"+type_obs
-scratchpath = '/home3/scratch/mbeaucha/'+domain
+opt      = sys.argv[1]
+type_obs = sys.argv[2]
+domain   = sys.argv[3]
+workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE/"+domain+"/scores_final_"+opt+"_"+type_obs
+scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:
@@ -41,13 +42,13 @@ else:
     mk_dir_recursive(workpath)    
 
 # Reload AnDA results (for GT and OI)
-file_results_AnDA=scratchpath+'/resAnDA_nadirswot_nadlag_0_'+type_obs+'/saved_path.pickle'
+file_results_AnDA=scratchpath+"/resAnDA_"+opt+'_nadlag_0_'+type_obs+'/saved_path.pickle'
 with open(file_results_AnDA, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
 
 
 # Reload GE-NN results
-file_results_GENN=scratchpath+'/resIA_nadirswot_nadlag_5_'+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_GENN=scratchpath+"/resIA_"+opt+"_"+'nadlag_5_'+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_019_FP_GENN_wwmissing.pickle'
 with open(file_results_GENN, 'rb') as handle:
     itrp_FP_GENN = pickle.load(handle)[2]
 
@@ -122,7 +123,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     nrmse_VE_DINEOF[i] = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(VE_DINEOF-np.nanmean(VE_DINEOF)))**2)))/np.nanstd(gt)
     nrmse_FP_GENN[i]             = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_GENN-np.nanmean(FP_GENN)))**2)))/np.nanstd(gt)
 
-    '''## Display maps
+    ## Display maps
     var=['obs','OI','Post_AnDA','FP_GENN','VE_DINEOF']
     title=['Obs','OI','Post-AnDA','FP-GENN','VE-DINEOF']
     fig, ax = plt.subplots(2,3,figsize=(15,10),
@@ -160,7 +161,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     plt.subplots_adjust(hspace=0.3,wspace=0.5)
     resfile=workpath+"/results_final_grads_"+day+".png"
     plt.savefig(resfile)       # save the figure
-    plt.close()                 # close the figure'''
+    plt.close()                 # close the figure
 
 ## Scores tables
 index=list(range(5,16))

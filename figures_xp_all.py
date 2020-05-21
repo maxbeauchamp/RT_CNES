@@ -27,8 +27,8 @@ AnDA_lag = sys.argv[1]
 NN_lag   = sys.argv[2]
 type_obs = sys.argv[3]
 domain   = sys.argv[4] 
-workpath = "/home3/scratch/mbeaucha/"+domain+"/scores_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
-scratchpath = '/home3/scratch/mbeaucha/'+domain
+workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE/"+domain+"/scores_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
+scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 #else:
@@ -54,10 +54,10 @@ with open(file_results_nadir, 'rb') as handle:
 file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot, rec_FP_ConvAE_nadirswot = pickle.load(handle)[2:]
-file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_019_FP_GENN_wwmissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir, rec_FP_GENN_nadir = pickle.load(handle)[2:]
-file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wocov/saved_path_019_FP_GENN_wwmissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_019_FP_GENN_wwmissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot, rec_FP_GENN_nadirswot = pickle.load(handle)[2:]
 
@@ -311,7 +311,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     AE_Grad_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_FP_ConvAE_nadirswot-np.nanmean(rGrad_FP_ConvAE_nadirswot)))**2)/np.nanvar(Grad_gt))
     AE_Grad_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_FP_GENN_nadirswot-np.nanmean(rGrad_FP_GENN_nadirswot)))**2)/np.nanvar(Grad_gt))
 
-    '''# Display individual maps
+    # Display individual maps
     var=['gt','obs_nadir','obs_nadirswot',\
          'OI_nadir','OI_nadirswot',\
          'AnDA_nadir','AnDA_nadirswot',\
@@ -625,7 +625,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     ax.invert_xaxis()
     plt.grid(which='both', linestyle='--')
     plt.savefig(resfile)# save the figure
-    plt.close() # close the figure'''
+    plt.close() # close the figure
 
 ## SSH score tables (mean of daily scores)
 index=list(range(5,16))

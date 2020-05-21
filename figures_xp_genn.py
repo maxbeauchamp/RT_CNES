@@ -26,8 +26,8 @@ def mk_dir_recursive(dir_path):
 opt      = sys.argv[1]
 type_obs = sys.argv[2]
 domain   = sys.argv[3]
-workpath = "/home3/scratch/mbeaucha/"+domain+"scores_GENN_"+type_obs
-scratchpath = '/home3/scratch/mbeaucha/'+domain
+workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE/"+domain+"/scores_GENN_"+type_obs
+scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 #else:
@@ -54,7 +54,7 @@ with open(file_results_3, 'rb') as handle:
 file_results_4=scratchpath+'/resIA_'+opt+'_nadlag_5_'+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_4, 'rb') as handle:
     itrp_FP_GENN_4 = pickle.load(handle)[2]
-file_results_5=scratchpath+'/resIA_'+opt+'_nadlag_5_'+type_obs+'/FP_GENN_wwmissing_wocov/saved_path_019_FP_GENN_wwmissing.pickle'
+file_results_5=scratchpath+'/resIA_'+opt+'_nadlag_5_'+type_obs+'/FP_GENN_wwmissing_wocov/saved_path_014_FP_GENN_wwmissing.pickle'
 with open(file_results_5, 'rb') as handle:
     itrp_FP_GENN_5 = pickle.load(handle)[2]
 file_results_6=scratchpath+'/resIA_'+opt+'_nadlag_5_'+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_019_FP_GENN_wwmissing.pickle'
@@ -175,7 +175,7 @@ plt.plot(range(N),nrmse_FP_GENN_2,linestyle='dashed',color='red',linewidth=1,lab
 plt.plot(range(N),nrmse_FP_GENN_5,linestyle='dotted',color='red',linewidth=1,label='GENN_MM')
 plt.plot(range(N),nrmse_FP_GENN_3,linestyle='solid',color='blue',linewidth=1,label='GENN_NMNM + OI')
 plt.plot(range(N),nrmse_FP_GENN_4,linestyle='dashed',color='blue',linewidth=1,label='GENN_MNM + OI')
-plt.plot(range(N),nrmse_FP_GENN_6,linestyle='dotted',color='blue',linewidth=1,label='GENN_NMNM + OI')
+plt.plot(range(N),nrmse_FP_GENN_6,linestyle='dotted',color='blue',linewidth=1,label='GENN_MM + OI')
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
