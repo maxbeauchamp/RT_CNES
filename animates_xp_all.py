@@ -47,11 +47,11 @@ with open(file_results_nadir, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_nadir = AnDA_ssh_1
     itrp_dineof_nadir = itrp_dineof
-file_results_swot=scratchpath+'/resAnDA_swot_nadlag_0_'+type_obs+'/saved_path.pickle'
+'''file_results_swot=scratchpath+'/resAnDA_swot_nadlag_0_'+type_obs+'/saved_path.pickle'
 with open(file_results_swot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
     AnDA_ssh_1_swot = AnDA_ssh_1
-    itrp_dineof_swot = itrp_dineof
+    itrp_dineof_swot = itrp_dineof'''
 file_results_nadirswot=scratchpath+'/resAnDA_nadirswot_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     AnDA_ssh_1, itrp_dineof = pickle.load(handle)
@@ -65,10 +65,10 @@ with open(file_results_nadir, 'rb') as handle:
 file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot = pickle.load(handle)[2]
-file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir = pickle.load(handle)[2]
-file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_womissing_wocov/saved_path_019_FP_GENN_womissing.pickle'
+file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot = pickle.load(handle)[2]
 
@@ -91,7 +91,7 @@ lon = lon[:indLon]
 lat = lat[:indLat]
 
 # Compute GT gradient
-Grad_gt=np.zeros((len(AnDA_ssh_1.GT),indLon,indLat))
+Grad_gt=np.zeros((len(AnDA_ssh_1.GT),indLat,indLon))
 for i in range(len(AnDA_ssh_1.GT)):
     Grad_gt[i,:,:] = Gradient(AnDA_ssh_1.GT[i,:indLat,:indLon],2)
 

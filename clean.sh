@@ -1,4 +1,4 @@
 #!/bin/bash
 
 rm -rf log* 
-rm -rf output*
+rm -rf *out
