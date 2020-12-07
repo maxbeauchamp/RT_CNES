@@ -40,13 +40,13 @@ properties:
         YYYYMMDD_max: 20171231
         
     # mission_management: altimeter mission global information
-    mission_management: /home/administrateur/Bureau/prepa_dc_oce/OSE_evaluations/scuba/share/MissionManagement.yaml
+    mission_management: /linkhome/rech/genimt01/uba22to/RT_CNES/OSE/eval_OSE_tools/OSE_evaluations/scuba/share/MissionManagement.yaml
     
     # flag_edit_coastal: Activate / Deactivate coastal distance editing (ex: True/False)
     # file_coastal_distance: netCDF file including coastal distance in km (ex: DistanceTerre_1_8_patched.nc)
     # coastal_criteria: band lenght in km for coastal editing (ex: 100.)
     flag_edit_coastal: False
-    file_coastal_distance: /home/administrateur/Bureau/prepa_dc_oce/OSE_evaluations/scuba/share/land_distance_R0125_patched_island.nc
+    file_coastal_distance: /linkhome/rech/genimt01/uba22to/RT_CNES/OSE/eval_OSE_tools/OSE_evaluations/scuba/share/land_distance_R0125_patched_island.nc
     coastal_criteria: 100.
     
     # flag_edit_spatiotemporal_incoherence: edit point where spatiotemporal incoherence is found (True/False). Test is based on altimeter velocity checking

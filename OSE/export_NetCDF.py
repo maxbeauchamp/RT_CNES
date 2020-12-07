@@ -32,9 +32,9 @@ lag        = sys.argv[1]
 domain     = sys.argv[2]
 wregul     = str2bool(sys.argv[3])
 if wregul==True:
-    scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE_keras/OSE/'+domain+'/resIA_nadir_nadlag_'+lag+'_obs/FP_GENN_wwmissing_wOI_wtrain_wregul'
+    scratchpath = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/OSE/'+domain+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain_wregul'
 else:
-    scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE_keras/OSE/'+domain+'/resIA_nadir_nadlag_'+lag+'_obs/FP_GENN_wwmissing_wOI_wtrain'
+    scratchpath = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/OSE/'+domain+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain'
 
 datapath    = '/gpfswork/rech/yrf/uba22to/DATA/OSE/'+domain+'/training/data'
 
@@ -46,9 +46,9 @@ def preprocess2(ds):
     return ds
 
 # Reload saved GE-NN results
-file_results=scratchpath+'/saved_path_FP_GENN_wwmissing.pickle'
+file_results=scratchpath+'/saved_path_001_GENN_wwmissing.pickle'
 with open(file_results, 'rb') as handle: 
-    OI, Obs, FP_GENN = pickle.load(handle)[1:4]
+    Obs, FP_GENN, ref_FP_GENN, OI = pickle.load(handle)[1:5]
 
 file_data=datapath+"/dataset_nadir_0d.nc"
 ds = xr.open_dataset(file_data)
@@ -72,13 +72,17 @@ lon = lon[:indLon]
 lat = lat[:indLat]
 mesh_lat, mesh_lon = np.meshgrid(lat, lon)
 time_u = ds.time.values
+
+for i in range(len(FP_GENN)):
+    FP_GENN[i] = median_filter(FP_GENN[i], size=5)
+
 xrdata = xr.Dataset(\
                 data_vars={'longitude': (('lat','lon'),mesh_lon),\
                            'latitude' : (('lat','lon'),mesh_lat),\
                            'Time'     : (('time'),time_u),\
                            'obs'      : (('time','lat','lon'),Obs),\
                            'OI'       : (('time','lat','lon'),OI),\
-                           'FP-GENN'  : (('time','lat','lon'),FP_GENN)},\
+                           'GB-GENN'  : (('time','lat','lon'),FP_GENN)},\
                 coords={'lon': lon,'lat': lat,'time': range(0,len(time_u))})
 xrdata.time.attrs['units']='days since 2017-01-01 00:00:00'
-xrdata.to_netcdf(path=scratchpath+"/OSE_"+domain+"_FPGENN.nc", mode='w')
+xrdata.to_netcdf(path=scratchpath+"/OSE_"+domain+"_GB1_GENN.nc", mode='w')
