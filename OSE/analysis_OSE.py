@@ -1,6 +1,6 @@
 import os
 import sys
-dirin = '/linkhome/rech/genimt01/uba22to/RT_CNES/OSE/eval_OSE_tools/OSE_evaluations'
+dirin = '/users/local/m19beauc/RT_CNES/OSE/eval_OSE_tools/OSE_evaluations'
 sys.path.append(dirin)  
 sys.path.append(dirin+'/scuba/src')
   
@@ -45,14 +45,14 @@ def str2bool(v):
 lag        = sys.argv[1]
 domain     = sys.argv[2]
 wregul     = str2bool(sys.argv[3])
-scratchpath = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/OSE/'+domain
+scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/'+domain+'/OSE'
 if wregul == True:
     scratchpath = scratchpath+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain_wregul'
 else:
     scratchpath = scratchpath+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain'
 
 # setup c2 alongtrack configuration
-residus_files_cmems = '/gpfswork/rech/yrf/uba22to/NADIR_raw/alongtracks/c2/*'
+residus_files_cmems = '/users/local/DATA/OSE/NADIR_RAW/alongtracks/c2/*'
 mission = 'c2'
 # study area
 lon_min = 295.   # -65
@@ -68,8 +68,8 @@ bin_lat_step = 1.
 bin_lon_step = 1.
 bin_time_step = '1D'
 
-lvar=['DUACS','GB1_GENN']
-lvar2=['OI','GB-GENN']
+lvar=['DUACS','GB1_GENN','BFN']
+lvar2=['OI','GB-GENN','SSH']
 output_filename_stat = [ 'stat_OSE_GULFSTREAM_'+lvar[i]+'_'+time_min+'-'+time_max+'_'+mission+'.nc' for i in range(len(lvar)) ]
 output_filename_psd = ['psd_OSE_GULFSTREAM_'+lvar[i]+'_'+time_min+'-'+time_max+'_'+mission+'_vxxc.nc' for i in range(len(lvar)) ]
 
@@ -83,22 +83,34 @@ for i in range(len(lvar)):
 
     print('Processing '+lvar[i]+'...')
 
+    if lvar[i] != 'BFN':
     # import Interpolation maps
-    grid_files = scratchpath+'/OSE_'+domain+'_GB1_GENN.nc'
-    ds_genn    = xr.open_dataset(grid_files)
-    ds_genn_sel = ds_genn.where((ds_genn.lon >= -64.9) & (ds_genn.lat >= 33.1), drop=True)
-    ds_genn_sel.to_netcdf(scratchpath+'/OSE_'+domain+'_GB1_GENN_clean.nc')
-    grid_files = scratchpath+'/OSE_'+domain+'_GB1_GENN_clean.nc'
+        grid_files = scratchpath+'/OSE_'+domain+'_GB1_GENN.nc'
+        ds_genn    = xr.open_dataset(grid_files)
+        ds_genn_sel = ds_genn.where((ds_genn.lon >= -64.9) & (ds_genn.lat >= 33.1), drop=True)
+        ds_genn_sel.to_netcdf(scratchpath+'/OSE_'+domain+'_GB1_GENN_clean.nc')
+        grid_files = scratchpath+'/OSE_'+domain+'_GB1_GENN_clean.nc'
 
-    var2add = [lvar2[i]] #  
-    var2sub = []
+        var2add = [lvar2[i]] #  
+        var2sub = []
 
-    x_axis, y_axis, z_axis, grid = fpgenn_grid_dataset(grid_files, var2add, var2sub,
+        x_axis, y_axis, z_axis, grid = fpgenn_grid_dataset(grid_files, var2add, var2sub,
                                                        lon_min=lon_min, lon_max=lon_max, 
                                                        lat_min=lat_min, lat_max=lat_max, 
                                                        time_min=time_min, time_max=time_max,
                                                        is_circle=is_circle)
+    else:
+        # import Interpolation maps
+        grid_files = '/users/local/DATA/OSE/GULFSTREAM/OSE_GULFSTREAM_BFN_202008.nc'
 
+        var2add = [lvar2[i]] #  
+        var2sub = []
+
+        x_axis, y_axis, z_axis, grid = bfn_grid_dataset(grid_files, var2add, var2sub,
+                                                       lon_min=lon_min, lon_max=lon_max, 
+                                                       lat_min=lat_min, lat_max=lat_max, 
+                                                       time_min=time_min, time_max=time_max,
+                                                       is_circle=is_circle)
 
     # Interpolate maps on alongtrack
     map_interp = pyinterp.trivariate(grid, 
@@ -187,31 +199,37 @@ for i in range(len(lvar)):
 ## plot RMSE  
 ds_DUACS = xr.open_dataset(output_filename_stat[0], group='diff')
 ds_FP_GENN =  xr.open_dataset(output_filename_stat[1], group='diff')
+ds_BFN =  xr.open_dataset(output_filename_stat[2], group='diff')
 plot.rc['savefig.transparent']=False
-fig, ax = plot.subplots(ncols=2, nrows=1, span=False, axwidth='4cm')
+fig, ax = plot.subplots(ncols=3, nrows=1, span=False, axwidth='4cm')
 ax.format(xlabel='longitude', ylabel='latitude', grid=False, suptitle='RMSE in 1$^{\circ}$x1$^{\circ}$ grid boxes (Cryosat-2 independent)', abc=True, abcloc='ul', xlim=(295, 305), ylim=(33, 43))
 ax[0].pcolormesh(ds_DUACS['lon'].values, ds_DUACS['lat'].values, ds_DUACS['rmse'], vmin=0, vmax=0.2)
 ax[0].format(title='DUACS OI')
 pc = ax[1].pcolormesh(ds_FP_GENN['lon'].values, ds_FP_GENN['lat'].values, ds_FP_GENN['rmse'], vmin=0, vmax=0.2)
-ax[1].format(title='FP-GENN')
+ax[1].format(title='GB-GENN')
+pc = ax[2].pcolormesh(ds_BFN['lon'].values, ds_BFN['lat'].values, ds_BFN['rmse'], vmin=0, vmax=0.2)
+ax[2].format(title='BFN')
 cbar = fig.colorbar(pc, label='RMSE [m]', ticks=0.02, loc='r', length=0.7, formatter='simple')
 plt.savefig(scratchpath+'/RMSE.pdf')
 
 ## plot Spectral analysis
 ds_DUACS = xr.open_dataset(output_filename_psd[0])
 ds_FP_GENN =  xr.open_dataset(output_filename_psd[1])
+ds_BFN =  xr.open_dataset(output_filename_psd[2])
 plot.rc['savefig.transparent']=False
 fig, axs = plot.subplots(ncols=2, share=False)
 axs.format(xlabel='wavelength [km]', grid=True, abc=True, abcloc='ur', xlim=(50, 500), xscale='log', xlocator=[50, 100, 150, 200, 300, 400, 500])
 p1 = axs[0].plot(1./ds_DUACS.wavenumber, ds_DUACS.psd_ref.values, label='Cryosat-2', color='k', lw=3)#, legend='ll', legend_kw={'ncol': 1})
 p2 = axs[0].plot(1./ds_DUACS.wavenumber, ds_DUACS.psd_study.values, label='DUACS', lw=6)#, legend='ll', legend_kw={'ncol': 1})
-p3 = axs[0].plot(1./ds_FP_GENN.wavenumber, ds_FP_GENN.psd_study.values, label='FP-GENN', lw=2)#, legend='ll', legend_kw={'ncol': 1})
-fig.legend([p1, p2, p3], ncols=3, loc='t')
+p3 = axs[0].plot(1./ds_FP_GENN.wavenumber, ds_FP_GENN.psd_study.values, label='GB-GENN', lw=2)#, legend='ll', legend_kw={'ncol': 1})
+p4 = axs[0].plot(1./ds_BFN.wavenumber, ds_BFN.psd_study.values, label='BFN', lw=2)#, legend='ll', legend_kw={'ncol': 1})
+fig.legend([p1, p2, p3,p4], ncols=2, loc='t')
 axs[0].format(ylabel='PSD [m$^{2}$cy$^{-1}$km$^{-1}$]', yscale='log')
 
 c2 = plot.scale_luminance('red', 0.5)
 axs[1].plot(1./ds_DUACS.wavenumber, 1. - ds_DUACS.psd_diff/ds_DUACS.psd_ref, label='DUACS', lw=6)#, legend='ll', legend_kw={'ncol': 1})
 axs[1].plot(1./ds_FP_GENN.wavenumber, 1. - ds_FP_GENN.psd_diff/ds_FP_GENN.psd_ref,  label='FP-GENN', lw=2)#, legend='ll', legend_kw={'ncol': 1})
+axs[1].plot(1./ds_BFN.wavenumber, 1. - ds_BFN.psd_diff/ds_BFN.psd_ref,  label='BFN', lw=2)#, legend='ll', legend_kw={'ncol': 1})
 axs[1].format(ylabel='1.0 - Ratio PSD$_{err}$/PSD$_{c2}$', ylim=(0, 1))
 axs[1].hlines(y=0.5, xmin=20, xmax=500, lw=1, color=c2)
 plt.savefig(scratchpath+'/DSP.pdf')

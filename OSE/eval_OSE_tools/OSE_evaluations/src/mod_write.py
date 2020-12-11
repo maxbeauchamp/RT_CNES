@@ -13,6 +13,7 @@ def write_stat(nc, group_name, binning):
     latitude[:] = binning.y
     
     stats = ['min', 'max', 'median', 'sum', 'sum_of_weights', 'variance', 'mean', 'count', 'kurtosis', 'skewness']
+    stats = ['min', 'max','mean']
     for variable in stats:
         
         var = grp.createVariable(variable, binning.variable(variable).dtype, ('lat','lon'), zlib=True)

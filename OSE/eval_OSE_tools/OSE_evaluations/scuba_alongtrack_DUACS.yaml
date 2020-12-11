@@ -40,7 +40,7 @@ properties:
         YYYYMMDD_max: 20171231
         
     # mission_management: altimeter mission global information
-    mission_management: /linkhome/rech/genimt01/uba22to/RT_CNES/OSE/eval_OSE_tools/OSE_evaluations/scuba/share/MissionManagement.yaml
+    mission_management: /users/local/m19beauc/RT_CNES/OSE/eval_OSE_tools/OSE_evaluations/scuba/share/MissionManagement.yaml
     
     # flag_edit_coastal: Activate / Deactivate coastal distance editing (ex: True/False)
     # file_coastal_distance: netCDF file including coastal distance in km (ex: DistanceTerre_1_8_patched.nc)

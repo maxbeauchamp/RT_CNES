@@ -23,8 +23,8 @@ def mk_dir_recursive(dir_path):
 
 type_obs = sys.argv[1]
 domain   = sys.argv[2]
-workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE/"+domain+"/scores_GENN_"+type_obs
-scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
+workpath = "/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE/"+domain+"/scores_GENN_"+type_obs
+scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 

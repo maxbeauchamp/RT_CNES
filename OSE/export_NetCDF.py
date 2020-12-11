@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 
-from pb_anda import *
 from netCDF4 import Dataset
+import numpy as np
+import sys
+import pickle
 import xarray as xr
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -32,11 +34,11 @@ lag        = sys.argv[1]
 domain     = sys.argv[2]
 wregul     = str2bool(sys.argv[3])
 if wregul==True:
-    scratchpath = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/OSE/'+domain+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain_wregul'
+    scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/'+domain+'/OSE/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain_wregul'
 else:
-    scratchpath = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/OSE/'+domain+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain'
+    scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/'+domain+'/OSE/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain'
 
-datapath    = '/gpfswork/rech/yrf/uba22to/DATA/OSE/'+domain+'/training/data'
+datapath    = '/users/local/DATA/OSE/'+domain+'/training'
 
 @staticmethod
 def preprocess2(ds):
@@ -46,7 +48,7 @@ def preprocess2(ds):
     return ds
 
 # Reload saved GE-NN results
-file_results=scratchpath+'/saved_path_001_GENN_wwmissing.pickle'
+file_results=scratchpath+'/saved_path_005_GENN_wwmissing.pickle'
 with open(file_results, 'rb') as handle: 
     Obs, FP_GENN, ref_FP_GENN, OI = pickle.load(handle)[1:5]
 
@@ -66,15 +68,18 @@ else:
     extent=[-65.,-55.,30.,40.]
     indLat     = 200
     indLon     = 200
-lon = np.arange(extent[0],extent[1],1/20)
-lat = np.arange(extent[2],extent[3],1/20)
+dwscale = int(indLon/FP_GENN.shape[2])
+indLon=int(indLon/dwscale)
+indLat=int(indLat/dwscale)
+lon = np.arange(extent[0],extent[1],1/(20/dwscale))
+lat = np.arange(extent[2],extent[3],1/(20/dwscale))
 lon = lon[:indLon]
 lat = lat[:indLat]
 mesh_lat, mesh_lon = np.meshgrid(lat, lon)
 time_u = ds.time.values
 
-for i in range(len(FP_GENN)):
-    FP_GENN[i] = median_filter(FP_GENN[i], size=5)
+#for i in range(len(FP_GENN)):
+#    FP_GENN[i] = median_filter(FP_GENN[i], size=5)
 
 xrdata = xr.Dataset(\
                 data_vars={'longitude': (('lat','lon'),mesh_lon),\

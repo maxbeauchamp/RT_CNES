@@ -37,7 +37,7 @@ lag        = sys.argv[1]
 domain     = sys.argv[2]
 wregul     = str2bool(sys.argv[3])
 
-scratchpath = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/OSE/'+domain
+scratchpath = '/users/local/m19beauc/4DVARNN-DINAE/OSE/'+domain
 if wregul == True:
     scratchpath = scratchpath+'/resIA_nadir_nadlag_'+lag+'_obs/GB1_GENN_wwmissing_wOI_wtrain_wregul'
 else:

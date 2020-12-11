@@ -38,10 +38,10 @@ domain     = sys.argv[2]
 wregul     = str2bool(sys.argv[3])
 
 if wregul==True:
-    workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE_keras/OSE/"+domain+"/figs_lag"+lag+"_wregul"
+    workpath = "/users/local/m19beauc/4DVARNN-DinAE_xp/OSE_keras/OSE/"+domain+"/figs_lag"+lag+"_wregul"
 else:
-    workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE_keras/OSE/"+domain+"/figs_lag"+lag
-scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE_keras/OSE/'+domain
+    workpath = "/users/local/m19beauc/4DVARNN-DinAE_xp/OSE_keras/OSE/"+domain+"/figs_lag"+lag
+scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/OSE_keras/OSE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 #else:

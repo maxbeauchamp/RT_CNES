@@ -26,7 +26,7 @@ def mk_dir_recursive(dir_path):
         os.mkdir(new_path)
 
 domain   = sys.argv[1] 
-workpath    = "/gpfsscratch/rech/yrf/uba22to/DINAE_keras/4Ronan/"+domain
+workpath    = "/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE_keras/4Ronan/"+domain
 datapath    = '/gpfswork/rech/yrf/uba22to/DATA/'
 '''if not os.path.exists(workpath):
     mk_dir_recursive(workpath)

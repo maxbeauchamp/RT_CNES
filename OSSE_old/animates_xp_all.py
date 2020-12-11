@@ -33,8 +33,8 @@ AnDA_lag = sys.argv[1]
 NN_lag   = sys.argv[2]
 type_obs = sys.argv[3]
 domain   = sys.argv[4] 
-workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE/"+domain+"/animates_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
-scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
+workpath = "/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE/"+domain+"/animates_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
+scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 else:

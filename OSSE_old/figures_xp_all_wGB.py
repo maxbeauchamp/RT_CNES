@@ -27,8 +27,8 @@ AnDA_lag = sys.argv[1]
 NN_lag   = sys.argv[2]
 type_obs = sys.argv[3]
 domain   = sys.argv[4] 
-workpath = "/gpfsscratch/rech/yrf/uba22to/DINAE/"+domain+"/scores_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
-scratchpath = '/gpfsscratch/rech/yrf/uba22to/DINAE/'+domain
+workpath = "/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE/"+domain+"/scores_allmethods_AnDAnadlag_"+AnDA_lag+"_NNnadlag_"+NN_lag+"_"+type_obs
+scratchpath = '/users/local/m19beauc/4DVARNN-DinAE_xp/OSSE/'+domain
 if not os.path.exists(workpath):
     mk_dir_recursive(workpath)
 #else:
@@ -54,12 +54,23 @@ with open(file_results_nadir, 'rb') as handle:
 file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_019_FP_ConvAE_womissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot, rec_FP_ConvAE_nadirswot = pickle.load(handle)[2:]
+# supervised results FP-GENN nadir
 file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_nadir, 'rb') as handle:
     itrp_FP_GENN_nadir, rec_FP_GENN_nadir = pickle.load(handle)[2:]
+# supervised results FP-GENN nadirswot
 file_results_nadirswot=scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_019_FP_GENN_wmissing.pickle'
 with open(file_results_nadirswot, 'rb') as handle:
     itrp_FP_GENN_nadirswot, rec_FP_GENN_nadirswot = pickle.load(handle)[2:]
+# unsupervised results GB-GENN nadir
+file_results_nadir=scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/GB_GENN_wwmissing_wOI/saved_path_019_GB_GENN_wwmissing.pickle'
+with open(file_results_nadir, 'rb') as handle:
+    itrp_GB_GENN_nadir, rec_GB_GENN_nadir = pickle.load(handle)[2:]    
+# supervised results GB-GENN nadirswot
+scratchpath2 = '/gpfsscratch/rech/yrf/uba22to/4DVARNN-DINAE/'+domain
+file_results_nadirswot=scratchpath2+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wmissing_wOI/saved_path_009_GENN_wmissing.pickle'
+with open(file_results_nadirswot, 'rb') as handle:
+    itrp_GB_GENN_nadirswot, rec_GB_GENN_nadirswot = pickle.load(handle)[7:9]
 
 			#*****************#
 			# Display results #
@@ -90,10 +101,12 @@ nrmse_Post_AnDA_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_VE_DINEOF_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+nrmse_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Post_AnDA_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_VE_DINEOF_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+nrmse_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ## Init variables for temporal analysis (R scores)
 R_OI_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_OI_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
@@ -101,10 +114,12 @@ R_Post_AnDA_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_VE_DINEOF_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+R_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_Post_AnDA_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 R_VE_DINEOF_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 R_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 R_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+R_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ## Init variables for temporal analysis (I scores)
 I_OI_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_OI_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
@@ -112,16 +127,19 @@ I_Post_AnDA_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_VE_DINEOF_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+I_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_Post_AnDA_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 I_VE_DINEOF_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 I_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 I_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+I_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ## Init variables for temporal analysis (AE scores)
 AE_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 AE_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+AE_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 AE_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 AE_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
-
+AE_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ##*** INIT GradSSH STATISTICS ***##
 ## Init variables for temporal analysis (R scores)
 nrmse_Grad_OI_nadir=np.zeros(len(AnDA_ssh_1.GT))
@@ -130,10 +148,12 @@ nrmse_Grad_Post_AnDA_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_VE_DINEOF_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+nrmse_Grad_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_Post_AnDA_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_VE_DINEOF_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 nrmse_Grad_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+nrmse_Grad_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ## Init variables for temporal analysis (R scores)
 R_Grad_OI_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_OI_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
@@ -141,10 +161,12 @@ R_Grad_Post_AnDA_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_VE_DINEOF_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+R_Grad_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_Post_AnDA_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_VE_DINEOF_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 R_Grad_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+R_Grad_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ## Init variables for temporal analysis (I scores)
 I_Grad_OI_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_OI_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
@@ -152,15 +174,19 @@ I_Grad_Post_AnDA_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_VE_DINEOF_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+I_Grad_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_Post_AnDA_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_VE_DINEOF_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 I_Grad_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+I_Grad_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 ## Init variables for temporal analysis (AE scores)
 AE_Grad_FP_ConvAE_nadir=np.zeros(len(AnDA_ssh_1.GT))
 AE_Grad_FP_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
+AE_Grad_GB_GENN_nadir=np.zeros(len(AnDA_ssh_1.GT))
 AE_Grad_FP_ConvAE_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 AE_Grad_FP_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
+AE_Grad_GB_GENN_nadirswot=np.zeros(len(AnDA_ssh_1.GT))
 
 ## Observations spatial coverage
 nadcov=np.zeros(len(AnDA_ssh_1.GT))
@@ -204,10 +230,14 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     Grad_FP_ConvAE_nadir        = Gradient(FP_ConvAE_nadir,2)
     FP_GENN_nadir               = itrp_FP_GENN_nadir[i,:indLat,:indLon]
     Grad_FP_GENN_nadir          = Gradient(FP_GENN_nadir,2)
+    GB_GENN_nadir               = itrp_GB_GENN_nadir[i,:indLat,:indLon]
+    Grad_GB_GENN_nadir          = Gradient(GB_GENN_nadir,2)
     rFP_ConvAE_nadir            = rec_FP_ConvAE_nadir[i,:indLat,:indLon]
     rGrad_FP_ConvAE_nadir       = Gradient(rFP_ConvAE_nadir,2)
     rFP_GENN_nadir              = rec_FP_GENN_nadir[i,:indLat,:indLon]
     rGrad_FP_GENN_nadir         = Gradient(rFP_GENN_nadir,2)
+    rGB_GENN_nadir              = rec_GB_GENN_nadir[i,:indLat,:indLon]
+    rGrad_GB_GENN_nadir         = Gradient(rGB_GENN_nadir,2)
     # nadirswot
     OI_nadirswot                = AnDA_ssh_1_nadirswot.itrp_OI[i,:indLat,:indLon]
     Grad_OI_nadirswot           = Gradient(OI_nadirswot,2)
@@ -224,10 +254,14 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     Grad_FP_ConvAE_nadirswot    = Gradient(FP_ConvAE_nadirswot,2)
     FP_GENN_nadirswot           = itrp_FP_GENN_nadirswot[i,:indLat,:indLon]
     Grad_FP_GENN_nadirswot      = Gradient(FP_GENN_nadirswot,2)
+    GB_GENN_nadirswot           = itrp_GB_GENN_nadirswot[i,:indLat,:indLon]
+    Grad_GB_GENN_nadirswot      = Gradient(GB_GENN_nadirswot,2)
     rFP_ConvAE_nadirswot        = rec_FP_ConvAE_nadirswot[i,:indLat,:indLon]
     rGrad_FP_ConvAE_nadirswot   = Gradient(rFP_ConvAE_nadirswot,2)
     rFP_GENN_nadirswot          = rec_FP_GENN_nadirswot[i,:indLat,:indLon]
     rGrad_FP_GENN_nadirswot     = Gradient(rFP_GENN_nadirswot,2)
+    rGB_GENN_nadirswot          = rec_GB_GENN_nadirswot[i,:indLat,:indLon]
+    rGrad_GB_GENN_nadirswot     = Gradient(rGB_GENN_nadirswot,2)
 
     ## Compute spatial coverage
     nadcov[i]		= len(np.argwhere(np.isfinite(obs_nadir.flatten())))/len(obs_nadir.flatten())
@@ -239,77 +273,92 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     nrmse_VE_DINEOF_nadir[i]	= (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(VE_DINEOF_nadir-np.nanmean(VE_DINEOF_nadir)))**2)))/np.nanstd(gt)
     nrmse_FP_ConvAE_nadir[i]    = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_ConvAE_nadir-np.nanmean(FP_ConvAE_nadir)))**2)))/np.nanstd(gt)
     nrmse_FP_GENN_nadir[i]      = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_GENN_nadir-np.nanmean(FP_GENN_nadir)))**2)))/np.nanstd(gt)
+    nrmse_GB_GENN_nadir[i]      = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(GB_GENN_nadir-np.nanmean(GB_GENN_nadir)))**2)))/np.nanstd(gt)
     nrmse_OI_nadirswot[i]           = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(OI_nadirswot-np.nanmean(OI_nadirswot)))**2)))/np.nanstd(gt)
     nrmse_Post_AnDA_nadirswot[i]= (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(Post_AnDA_nadirswot-np.nanmean(Post_AnDA_nadirswot)))**2)))/np.nanstd(gt)
     nrmse_VE_DINEOF_nadirswot[i]= (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(VE_DINEOF_nadirswot-np.nanmean(VE_DINEOF_nadirswot)))**2)))/np.nanstd(gt) 
     nrmse_FP_ConvAE_nadirswot[i]  = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_ConvAE_nadirswot-np.nanmean(FP_ConvAE_nadirswot)))**2)))/np.nanstd(gt)
     nrmse_FP_GENN_nadirswot[i]    = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(FP_GENN_nadirswot-np.nanmean(FP_GENN_nadirswot)))**2)))/np.nanstd(gt)
+    nrmse_GB_GENN_nadirswot[i]    = (np.sqrt(np.nanmean(((gt-np.nanmean(gt))-(GB_GENN_nadirswot-np.nanmean(GB_GENN_nadirswot)))**2)))/np.nanstd(gt)
     ## Compute R scores 
     R_OI_nadir[i]           = 100*(1-np.nanmean(((mask1_nadir*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadir*OI_nadir-np.nanmean(mask1_nadir*OI_nadir)))**2)/np.nanvar(mask1_nadir*gt))
     R_Post_AnDA_nadir[i]    = 100*(1-np.nanmean(((mask1_nadir*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadir*Post_AnDA_nadir-np.nanmean(mask1_nadir*Post_AnDA_nadir)))**2)/np.nanvar(mask1_nadir*gt))
     R_VE_DINEOF_nadir[i]    = 100*(1-np.nanmean(((mask1_nadir*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadir*VE_DINEOF_nadir-np.nanmean(mask1_nadir*VE_DINEOF_nadir)))**2)/np.nanvar(mask1_nadir*gt))
     R_FP_ConvAE_nadir[i]    = 100*(1-np.nanmean(((mask1_nadir*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadir*FP_ConvAE_nadir-np.nanmean(mask1_nadir*FP_ConvAE_nadir)))**2)/np.nanvar(mask1_nadir*gt))
     R_FP_GENN_nadir[i]      = 100*(1-np.nanmean(((mask1_nadir*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadir*FP_GENN_nadir-np.nanmean(mask1_nadir*FP_GENN_nadir)))**2)/np.nanvar(mask1_nadir*gt))
+    R_GB_GENN_nadir[i]      = 100*(1-np.nanmean(((mask1_nadir*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadir*GB_GENN_nadir-np.nanmean(mask1_nadir*GB_GENN_nadir)))**2)/np.nanvar(mask1_nadir*gt))
     R_OI_nadirswot[i]        = 100*(1-np.nanmean(((mask1_nadirswot*gt-np.nanmean(mask1_nadir*gt))-(mask1_nadirswot*OI_nadir-np.nanmean(mask1_nadirswot*OI_nadir)))**2)/np.nanvar(mask1_nadirswot*gt))
     R_Post_AnDA_nadirswot[i]= 100*(1-np.nanmean(((mask1_nadirswot*gt-np.nanmean(mask1_nadirswot*gt))-(mask1_nadirswot*Post_AnDA_nadirswot-np.nanmean(mask1_nadirswot*Post_AnDA_nadirswot)))**2)/np.nanvar(mask1_nadirswot*gt))
     R_VE_DINEOF_nadirswot[i]= 100*(1-np.nanmean(((mask1_nadirswot*gt-np.nanmean(mask1_nadirswot*gt))-(mask1_nadirswot*VE_DINEOF_nadirswot-np.nanmean(mask1_nadirswot*VE_DINEOF_nadirswot)))**2)/np.nanvar(mask1_nadirswot*gt))
     R_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((mask1_nadirswot*gt-np.nanmean(mask1_nadirswot*gt))-(mask1_nadirswot*FP_ConvAE_nadirswot-np.nanmean(mask1_nadirswot*FP_ConvAE_nadirswot)))**2)/np.nanvar(mask1_nadirswot*gt))
     R_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask1_nadirswot*gt-np.nanmean(mask1_nadirswot*gt))-(mask1_nadirswot*FP_GENN_nadirswot-np.nanmean(mask1_nadirswot*FP_GENN_nadirswot)))**2)/np.nanvar(mask1_nadirswot*gt))
+    R_GB_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask1_nadirswot*gt-np.nanmean(mask1_nadirswot*gt))-(mask1_nadirswot*GB_GENN_nadirswot-np.nanmean(mask1_nadirswot*GB_GENN_nadirswot)))**2)/np.nanvar(mask1_nadirswot*gt))
     ## Compute I scores 
     I_OI_nadir[i]           = 100*(1-np.nanmean(((mask2_nadir*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadir*OI_nadir-np.nanmean(mask2_nadir*OI_nadir)))**2)/np.nanvar(mask2_nadir*gt))
     I_Post_AnDA_nadir[i]    = 100*(1-np.nanmean(((mask2_nadir*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadir*Post_AnDA_nadir-np.nanmean(mask2_nadir*Post_AnDA_nadir)))**2)/np.nanvar(mask2_nadir*gt))
     I_VE_DINEOF_nadir[i]    = 100*(1-np.nanmean(((mask2_nadir*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadir*VE_DINEOF_nadir-np.nanmean(mask2_nadir*VE_DINEOF_nadir)))**2)/np.nanvar(mask2_nadir*gt))
     I_FP_ConvAE_nadir[i]    = 100*(1-np.nanmean(((mask2_nadir*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadir*FP_ConvAE_nadir-np.nanmean(mask2_nadir*FP_ConvAE_nadir)))**2)/np.nanvar(mask2_nadir*gt))
     I_FP_GENN_nadir[i]      = 100*(1-np.nanmean(((mask2_nadir*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadir*FP_GENN_nadir-np.nanmean(mask2_nadir*FP_GENN_nadir)))**2)/np.nanvar(mask2_nadir*gt))
+    I_GB_GENN_nadir[i]      = 100*(1-np.nanmean(((mask2_nadir*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadir*GB_GENN_nadir-np.nanmean(mask2_nadir*GB_GENN_nadir)))**2)/np.nanvar(mask2_nadir*gt))
     I_OI_nadirswot[i]        = 100*(1-np.nanmean(((mask2_nadirswot*gt-np.nanmean(mask2_nadir*gt))-(mask2_nadirswot*OI_nadir-np.nanmean(mask2_nadirswot*OI_nadir)))**2)/np.nanvar(mask2_nadirswot*gt))
     I_Post_AnDA_nadirswot[i]= 100*(1-np.nanmean(((mask2_nadirswot*gt-np.nanmean(mask2_nadirswot*gt))-(mask2_nadirswot*Post_AnDA_nadirswot-np.nanmean(mask2_nadirswot*Post_AnDA_nadirswot)))**2)/np.nanvar(mask2_nadirswot*gt))
     I_VE_DINEOF_nadirswot[i]= 100*(1-np.nanmean(((mask2_nadirswot*gt-np.nanmean(mask2_nadirswot*gt))-(mask2_nadirswot*VE_DINEOF_nadirswot-np.nanmean(mask2_nadirswot*VE_DINEOF_nadirswot)))**2)/np.nanvar(mask2_nadirswot*gt))
     I_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((mask2_nadirswot*gt-np.nanmean(mask2_nadirswot*gt))-(mask2_nadirswot*FP_ConvAE_nadirswot-np.nanmean(mask2_nadirswot*FP_ConvAE_nadirswot)))**2)/np.nanvar(mask2_nadirswot*gt))
     I_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask2_nadirswot*gt-np.nanmean(mask2_nadirswot*gt))-(mask2_nadirswot*FP_GENN_nadirswot-np.nanmean(mask2_nadirswot*FP_GENN_nadirswot)))**2)/np.nanvar(mask2_nadirswot*gt))
+    I_GB_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask2_nadirswot*gt-np.nanmean(mask2_nadirswot*gt))-(mask2_nadirswot*GB_GENN_nadirswot-np.nanmean(mask2_nadirswot*GB_GENN_nadirswot)))**2)/np.nanvar(mask2_nadirswot*gt))
     ## Compute AE scores 
     AE_FP_ConvAE_nadir[i]    = 100*(1-np.nanmean(((gt-np.nanmean(gt))-(rFP_ConvAE_nadir-np.nanmean(rFP_ConvAE_nadir)))**2)/np.nanvar(gt))
     AE_FP_GENN_nadir[i]      = 100*(1-np.nanmean(((gt-np.nanmean(gt))-(rFP_GENN_nadir-np.nanmean(rFP_GENN_nadir)))**2)/np.nanvar(gt))
+    AE_GB_GENN_nadir[i]      = 100*(1-np.nanmean(((gt-np.nanmean(gt))-(rGB_GENN_nadir-np.nanmean(rGB_GENN_nadir)))**2)/np.nanvar(gt))
     AE_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((gt-np.nanmean(gt))-(rFP_ConvAE_nadirswot-np.nanmean(rFP_ConvAE_nadirswot)))**2)/np.nanvar(gt))
     AE_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((gt-np.nanmean(gt))-(rFP_GENN_nadirswot-np.nanmean(rFP_GENN_nadirswot)))**2)/np.nanvar(gt))
-
+    AE_GB_GENN_nadirswot[i]    = 100*(1-np.nanmean(((gt-np.nanmean(gt))-(rGB_GENN_nadirswot-np.nanmean(rGB_GENN_nadirswot)))**2)/np.nanvar(gt))
     ## Compute NRMSE Grad statistics 
     nrmse_Grad_OI_nadir[i]		= (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_OI_nadir-np.nanmean(Grad_OI_nadir)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_Post_AnDA_nadir[i]	= (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_Post_AnDA_nadir-np.nanmean(Grad_Post_AnDA_nadir)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_VE_DINEOF_nadir[i]	= (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_VE_DINEOF_nadir-np.nanmean(Grad_VE_DINEOF_nadir)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_FP_ConvAE_nadir[i]    = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_FP_ConvAE_nadir-np.nanmean(Grad_FP_ConvAE_nadir)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_FP_GENN_nadir[i]      = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_FP_GENN_nadir-np.nanmean(Grad_FP_GENN_nadir)))**2)))/np.nanstd(Grad_gt)
+    nrmse_Grad_GB_GENN_nadir[i]      = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_GB_GENN_nadir-np.nanmean(Grad_GB_GENN_nadir)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_OI_nadirswot[i]           = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_OI_nadirswot-np.nanmean(Grad_OI_nadirswot)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_Post_AnDA_nadirswot[i]= (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_Post_AnDA_nadirswot-np.nanmean(Grad_Post_AnDA_nadirswot)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_VE_DINEOF_nadirswot[i]= (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_VE_DINEOF_nadirswot-np.nanmean(Grad_VE_DINEOF_nadirswot)))**2)))/np.nanstd(Grad_gt) 
     nrmse_Grad_FP_ConvAE_nadirswot[i]  = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_FP_ConvAE_nadirswot-np.nanmean(Grad_FP_ConvAE_nadirswot)))**2)))/np.nanstd(Grad_gt)
     nrmse_Grad_FP_GENN_nadirswot[i]    = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_FP_GENN_nadirswot-np.nanmean(Grad_FP_GENN_nadirswot)))**2)))/np.nanstd(Grad_gt)
+    nrmse_Grad_GB_GENN_nadirswot[i]    = (np.sqrt(np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(Grad_GB_GENN_nadirswot-np.nanmean(Grad_GB_GENN_nadirswot)))**2)))/np.nanstd(Grad_gt)
     ## Compute R scores 
     R_Grad_OI_nadir[i]           = 100*(1-np.nanmean(((mask1_nadir*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadir*Grad_OI_nadir-np.nanmean(mask1_nadir*Grad_OI_nadir)))**2)/np.nanvar(mask1_nadir*Grad_gt))
     R_Grad_Post_AnDA_nadir[i]    = 100*(1-np.nanmean(((mask1_nadir*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadir*Grad_Post_AnDA_nadir-np.nanmean(mask1_nadir*Grad_Post_AnDA_nadir)))**2)/np.nanvar(mask1_nadir*Grad_gt))
     R_Grad_VE_DINEOF_nadir[i]    = 100*(1-np.nanmean(((mask1_nadir*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadir*Grad_VE_DINEOF_nadir-np.nanmean(mask1_nadir*Grad_VE_DINEOF_nadir)))**2)/np.nanvar(mask1_nadir*Grad_gt))
     R_Grad_FP_ConvAE_nadir[i]    = 100*(1-np.nanmean(((mask1_nadir*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadir*Grad_FP_ConvAE_nadir-np.nanmean(mask1_nadir*Grad_FP_ConvAE_nadir)))**2)/np.nanvar(mask1_nadir*Grad_gt))
     R_Grad_FP_GENN_nadir[i]      = 100*(1-np.nanmean(((mask1_nadir*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadir*Grad_FP_GENN_nadir-np.nanmean(mask1_nadir*Grad_FP_GENN_nadir)))**2)/np.nanvar(mask1_nadir*Grad_gt))
+    R_Grad_GB_GENN_nadir[i]      = 100*(1-np.nanmean(((mask1_nadir*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadir*Grad_GB_GENN_nadir-np.nanmean(mask1_nadir*Grad_GB_GENN_nadir)))**2)/np.nanvar(mask1_nadir*Grad_gt))
     R_Grad_OI_nadirswot[i]        = 100*(1-np.nanmean(((mask1_nadirswot*Grad_gt-np.nanmean(mask1_nadir*Grad_gt))-(mask1_nadirswot*Grad_OI_nadir-np.nanmean(mask1_nadirswot*Grad_OI_nadir)))**2)/np.nanvar(mask1_nadirswot*Grad_gt))
     R_Grad_Post_AnDA_nadirswot[i]= 100*(1-np.nanmean(((mask1_nadirswot*Grad_gt-np.nanmean(mask1_nadirswot*Grad_gt))-(mask1_nadirswot*Grad_Post_AnDA_nadirswot-np.nanmean(mask1_nadirswot*Grad_Post_AnDA_nadirswot)))**2)/np.nanvar(mask1_nadirswot*Grad_gt))
     R_Grad_VE_DINEOF_nadirswot[i]= 100*(1-np.nanmean(((mask1_nadirswot*Grad_gt-np.nanmean(mask1_nadirswot*Grad_gt))-(mask1_nadirswot*Grad_VE_DINEOF_nadirswot-np.nanmean(mask1_nadirswot*Grad_VE_DINEOF_nadirswot)))**2)/np.nanvar(mask1_nadirswot*Grad_gt))
     R_Grad_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((mask1_nadirswot*Grad_gt-np.nanmean(mask1_nadirswot*Grad_gt))-(mask1_nadirswot*Grad_FP_ConvAE_nadirswot-np.nanmean(mask1_nadirswot*Grad_FP_ConvAE_nadirswot)))**2)/np.nanvar(mask1_nadirswot*Grad_gt))
     R_Grad_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask1_nadirswot*Grad_gt-np.nanmean(mask1_nadirswot*Grad_gt))-(mask1_nadirswot*Grad_FP_GENN_nadirswot-np.nanmean(mask1_nadirswot*Grad_FP_GENN_nadirswot)))**2)/np.nanvar(mask1_nadirswot*Grad_gt))
+    R_Grad_GB_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask1_nadirswot*Grad_gt-np.nanmean(mask1_nadirswot*Grad_gt))-(mask1_nadirswot*Grad_GB_GENN_nadirswot-np.nanmean(mask1_nadirswot*Grad_GB_GENN_nadirswot)))**2)/np.nanvar(mask1_nadirswot*Grad_gt))
     ## Compute I scores 
     I_Grad_OI_nadir[i]           = 100*(1-np.nanmean(((mask2_nadir*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadir*Grad_OI_nadir-np.nanmean(mask2_nadir*Grad_OI_nadir)))**2)/np.nanvar(mask2_nadir*Grad_gt))
     I_Grad_Post_AnDA_nadir[i]    = 100*(1-np.nanmean(((mask2_nadir*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadir*Grad_Post_AnDA_nadir-np.nanmean(mask2_nadir*Grad_Post_AnDA_nadir)))**2)/np.nanvar(mask2_nadir*Grad_gt))
     I_Grad_VE_DINEOF_nadir[i]    = 100*(1-np.nanmean(((mask2_nadir*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadir*Grad_VE_DINEOF_nadir-np.nanmean(mask2_nadir*Grad_VE_DINEOF_nadir)))**2)/np.nanvar(mask2_nadir*Grad_gt))
     I_Grad_FP_ConvAE_nadir[i]    = 100*(1-np.nanmean(((mask2_nadir*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadir*Grad_FP_ConvAE_nadir-np.nanmean(mask2_nadir*Grad_FP_ConvAE_nadir)))**2)/np.nanvar(mask2_nadir*Grad_gt))
     I_Grad_FP_GENN_nadir[i]      = 100*(1-np.nanmean(((mask2_nadir*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadir*Grad_FP_GENN_nadir-np.nanmean(mask2_nadir*Grad_FP_GENN_nadir)))**2)/np.nanvar(mask2_nadir*Grad_gt))
+    I_Grad_GB_GENN_nadir[i]      = 100*(1-np.nanmean(((mask2_nadir*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadir*Grad_GB_GENN_nadir-np.nanmean(mask2_nadir*Grad_GB_GENN_nadir)))**2)/np.nanvar(mask2_nadir*Grad_gt))
     I_Grad_OI_nadirswot[i]        = 100*(1-np.nanmean(((mask2_nadirswot*Grad_gt-np.nanmean(mask2_nadir*Grad_gt))-(mask2_nadirswot*Grad_OI_nadir-np.nanmean(mask2_nadirswot*Grad_OI_nadir)))**2)/np.nanvar(mask2_nadirswot*Grad_gt))
     I_Grad_Post_AnDA_nadirswot[i]= 100*(1-np.nanmean(((mask2_nadirswot*Grad_gt-np.nanmean(mask2_nadirswot*Grad_gt))-(mask2_nadirswot*Grad_Post_AnDA_nadirswot-np.nanmean(mask2_nadirswot*Grad_Post_AnDA_nadirswot)))**2)/np.nanvar(mask2_nadirswot*Grad_gt))
     I_Grad_VE_DINEOF_nadirswot[i]= 100*(1-np.nanmean(((mask2_nadirswot*Grad_gt-np.nanmean(mask2_nadirswot*Grad_gt))-(mask2_nadirswot*Grad_VE_DINEOF_nadirswot-np.nanmean(mask2_nadirswot*Grad_VE_DINEOF_nadirswot)))**2)/np.nanvar(mask2_nadirswot*Grad_gt))
     I_Grad_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((mask2_nadirswot*Grad_gt-np.nanmean(mask2_nadirswot*Grad_gt))-(mask2_nadirswot*Grad_FP_ConvAE_nadirswot-np.nanmean(mask2_nadirswot*Grad_FP_ConvAE_nadirswot)))**2)/np.nanvar(mask2_nadirswot*Grad_gt))
     I_Grad_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask2_nadirswot*Grad_gt-np.nanmean(mask2_nadirswot*Grad_gt))-(mask2_nadirswot*Grad_FP_GENN_nadirswot-np.nanmean(mask2_nadirswot*Grad_FP_GENN_nadirswot)))**2)/np.nanvar(mask2_nadirswot*Grad_gt))
+    I_Grad_GB_GENN_nadirswot[i]    = 100*(1-np.nanmean(((mask2_nadirswot*Grad_gt-np.nanmean(mask2_nadirswot*Grad_gt))-(mask2_nadirswot*Grad_GB_GENN_nadirswot-np.nanmean(mask2_nadirswot*Grad_GB_GENN_nadirswot)))**2)/np.nanvar(mask2_nadirswot*Grad_gt))
     ## Compute AE scores 
     AE_Grad_FP_ConvAE_nadir[i]    = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_FP_ConvAE_nadir-np.nanmean(rGrad_FP_ConvAE_nadir)))**2)/np.nanvar(Grad_gt))
     AE_Grad_FP_GENN_nadir[i]      = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_FP_GENN_nadir-np.nanmean(rGrad_FP_GENN_nadir)))**2)/np.nanvar(Grad_gt))
+    AE_Grad_GB_GENN_nadir[i]      = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_GB_GENN_nadir-np.nanmean(rGrad_GB_GENN_nadir)))**2)/np.nanvar(Grad_gt))
     AE_Grad_FP_ConvAE_nadirswot[i]  = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_FP_ConvAE_nadirswot-np.nanmean(rGrad_FP_ConvAE_nadirswot)))**2)/np.nanvar(Grad_gt))
     AE_Grad_FP_GENN_nadirswot[i]    = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_FP_GENN_nadirswot-np.nanmean(rGrad_FP_GENN_nadirswot)))**2)/np.nanvar(Grad_gt))
+    AE_Grad_GB_GENN_nadirswot[i]    = 100*(1-np.nanmean(((Grad_gt-np.nanmean(Grad_gt))-(rGrad_GB_GENN_nadirswot-np.nanmean(rGrad_GB_GENN_nadirswot)))**2)/np.nanvar(Grad_gt))
 
     '''# Display individual maps
     var=['gt','obs_nadir','obs_nadirswot',\
@@ -318,6 +367,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
          'Post_AnDA_nadir','Post_AnDA_nadirswot',\
          'FP_ConvAE_nadir','FP_ConvAE_nadirswot',\
          'FP_GENN_nadir','FP_GENN_nadirswot',\
+         'GB_GENN_nadir','GB_GENN_nadirswot',\
          'VE_DINEOF_nadir','VE_DINEOF_nadirswot',]
     title=['Ground Truth','Obs (nadir)','Obs (nadir+swot)',\
            'OI (nadir)','OI (nadir+swot)',\
@@ -325,6 +375,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            'Post-AnDA (nadir)','Post-AnDA (nadir+swot)',\
            'FP-ConvAE (nadir)','FP-ConvAE (nadir+swot)',\
            'FP-GENN (nadir)','FP-GENN (nadir+swot)',\
+           'GB-GENN (nadir)','GB-GENN (nadir+swot)',\
            'VE-DINEOF (nadir)','VE-DINEOF (nadir+swot)']
     for ivar in range(len(var)):
         resfile = workpath+"/results_"+var[ivar]+'_'+day+".png"
@@ -345,6 +396,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
          'Grad_Post_AnDA_nadir','Grad_Post_AnDA_nadirswot',\
          'Grad_FP_ConvAE_nadir','Grad_FP_ConvAE_nadirswot',\
          'Grad_FP_GENN_nadir','Grad_FP_GENN_nadirswot',\
+         'Grad_GB_GENN_nadir','Grad_GB_GENN_nadirswot',\
          'Grad_VE_DINEOF_nadir','Grad_VE_DINEOF_nadirswot']
     title=[r"$\nabla_{GT}$",\
            r"$\nabla_{OI}$ (nadir)",r"$\nabla_{OI}$ (nadir+swot)",\
@@ -352,6 +404,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            r"$\nabla_{Post-AnDA}$ (nadir)",r"$\nabla_{Post-AnDA} (nadir+swot)$",\
            r"$\nabla_{FP-ConvAE}$ (nadir)",r"$\nabla_{FP-ConvAE} (nadir+swot)$",\
            r"$\nabla_{FP-GENN}$ (nadir)",r"$\nabla_{FP-GENN} (nadir+swot)$",\
+           r"$\nabla_{GB-GENN}$ (nadir)",r"$\nabla_{GB-GENN} (nadir+swot)$",\
            r"$\nabla_{VE-DINEOF}$ (nadir)",r"$\nabla_{VE-DINEOF} (nadir+swot)$",]
     for ivar in range(len(var)):
         resfile = workpath+"/results_"+var[ivar]+'_'+day+".png"
@@ -371,6 +424,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
          'Post_AnDA_nadir','Post_AnDA_nadirswot',\
          'FP_ConvAE_nadir','FP_ConvAE_nadirswot',\
          'FP_GENN_nadir','FP_GENN_nadirswot',\
+         'GB_GENN_nadir','GB_GENN_nadirswot',\
          'VE_DINEOF_nadir','VE_DINEOF_nadirswot',]
     title=['Obs (nadir)','Obs (nadir+swot)',\
            'OI','OI',\
@@ -378,8 +432,9 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            'Post-AnDA','Post-AnDA',\
            'FP-ConvAE','FP-ConvAE',\
            'FP-GENN','FP-GENN',\
+           'GB-GENN','GB-GENN',\
            'VE-DINEOF','VE-DINEOF']
-    fig, ax = plt.subplots(2,8,figsize=(40,25),
+    fig, ax = plt.subplots(2,9,figsize=(40,25),
                           subplot_kw=dict(projection=ccrs.PlateCarree(central_longitude=0.0)))
     # display GT (reference)
     vmin = np.nanmin(gt) ; vmax = np.nanmax(gt)
@@ -402,6 +457,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
          'Grad_Post_AnDA_nadir','Grad_Post_AnDA_nadirswot',\
          'Grad_FP_ConvAE_nadir','Grad_FP_ConvAE_nadirswot',\
          'Grad_FP_GENN_nadir','Grad_FP_GENN_nadirswot',\
+         'Grad_GB_GENN_nadir','Grad_GB_GENN_nadirswot',\
          'Grad_VE_DINEOF_nadir','Grad_VE_DINEOF_nadirswot']
     title=['Obs (nadir)','Obs (nadir+swot)',\
            r"$\nabla_{OI}$",r"$\nabla_{OI}$",\
@@ -409,8 +465,9 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            r"$\nabla_{Post-AnDA}$",r"$\nabla_{Post-AnDA}$",\
            r"$\nabla_{FP-ConvAE}$",r"$\nabla_{FP-ConvAE}$",\
            r"$\nabla_{FP-GENN}$",r"$\nabla_{FP-GENN}$",\
+           r"$\nabla_{GB-GENN}$",r"$\nabla_{GB-GENN}$",\
            r"$\nabla_{VE-DINEOF}$",r"$\nabla_{VE-DINEOF}$",]
-    fig, ax = plt.subplots(2,8,figsize=(40,25),
+    fig, ax = plt.subplots(2,9,figsize=(40,25),
                           subplot_kw=dict(projection=ccrs.PlateCarree(central_longitude=0.0)))
     vmin = np.nanmin(Grad_gt) ; vmax = np.nanmax(Grad_gt)
     vmin2 = np.nanmin(gt) ; vmax2 = np.nanmax(gt)
@@ -439,6 +496,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            'Post-AnDA (nadir)','Post-AnDA (nadir+swot)',\
            'FP-ConvAE (nadir)','FP-ConvAE (nadir+swot)',\
            'FP-GENN (nadir)','FP-GENN (nadir+swot)',\
+           'GB-GENN (nadir)','GB-GENN (nadir+swot)',\
            'VE-DINEOF (nadir)','VE-DINEOF (nadir+swot)']
     series={'gt':gt,
             'OI_nadir':OI_nadir,
@@ -447,14 +505,16 @@ for i in range(0,len(AnDA_ssh_1.GT)):
             'Post_AnDA_nadir':Post_AnDA_nadir,'Post_AnDA_nadirswot':Post_AnDA_nadirswot,
             'FP_ConvAE_nadir':FP_ConvAE_nadir,'FP_ConvAE_nadirswot':FP_ConvAE_nadirswot,
             'FP_GENN_nadir':FP_GENN_nadir,'FP_GENN_nadirswot':FP_GENN_nadirswot,
+            'GB_GENN_nadir':GB_GENN_nadir,'GB_GENN_nadirswot':GB_GENN_nadirswot,
             'VE_DINEOF_nadir':VE_DINEOF_nadir,'VE_DINEOF_nadirswot':VE_DINEOF_nadirswot}
     Taylor_diag(series,label,\
-                styles=['k','p','o','p','o','p','o','p','o','p','o','p','o'],\
+                styles=['k','p','o','p','o','p','o','p','o','p','o','p','o','p','o'],\
                 colors=['k','y','y','mediumseagreen','mediumseagreen',\
                                 'seagreen','seagreen',\
-                                'steelblue','steelblue',\
                                 'mediumorchid','mediumorchid',\
-                                'darkorange','darkorange'])
+                                'darkorange','darkorange',\
+                                'navy','navy',\
+                                'steelblue','steelblue'])
     plt.savefig(resfile)
     plt.close()
 
@@ -466,6 +526,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
            r"$\nabla_{Post-AnDA}$ (nadir)",r"$\nabla_{Post-AnDA} (nadir+swot)$",\
            r"$\nabla_{FP-ConvAE}$ (nadir)",r"$\nabla_{FP-ConvAE} (nadir+swot)$",\
            r"$\nabla_{FP-GENN}$ (nadir)",r"$\nabla_{FP-GENN} (nadir+swot)$",\
+           r"$\nabla_{GB-GENN}$ (nadir)",r"$\nabla_{GB-GENN} (nadir+swot)$",\
            r"$\nabla_{VE-DINEOF}$ (nadir)",r"$\nabla_{VE-DINEOF} (nadir+swot)$"]
     series={'gt':gt,
             'Grad_OI_nadir': Grad_OI_nadir,'Grad_OI_nadirswot': Grad_OI_nadirswot,
@@ -473,14 +534,16 @@ for i in range(0,len(AnDA_ssh_1.GT)):
             'Grad_Post_AnDA_nadir':Post_AnDA_nadir,'Grad_Post_AnDA_nadirswot':Post_AnDA_nadirswot,
             'Grad_FP_ConvAE_nadir':Grad_FP_ConvAE_nadir,'Grad_FP_ConvAE_nadirswot':Grad_FP_ConvAE_nadirswot,
             'Grad_FP_GENN_nadir':Grad_FP_GENN_nadir,'Grad_FP_GENN_nadirswot':Grad_FP_GENN_nadirswot,
+            'Grad_GB_GENN_nadir':Grad_GB_GENN_nadir,'Grad_GB_GENN_nadirswot':Grad_GB_GENN_nadirswot,
             'Grad_VE_DINEOF_nadir':VE_DINEOF_nadir,'Grad_VE_DINEOF_nadirswot':VE_DINEOF_nadirswot}
     Taylor_diag(series,label,\
-                styles=['k','p','o','p','o','p','o','p','o','p','o','p','o'],\
+                styles=['k','p','o','p','o','p','o','p','o','p','o','p','o','p','o'],\
                 colors=['k','y','y','mediumseagreen','mediumseagreen',\
                                 'seagreen','seagreen',\
-                                'steelblue','steelblue',\
                                 'mediumorchid','mediumorchid',\
-                                'darkorange','darkorange'])
+                                'darkorange','darkorange',\
+                                'navy','navy',\
+                                'steelblue','steelblue'])
     plt.savefig(resfile)
     plt.close()
 
@@ -499,6 +562,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     f4_nadirswot, Pf_FP_ConvAE_nadirswot = raPsd2dv1(FP_ConvAE_nadirswot,resssh,True)
     f5_nadir, Pf_FP_GENN_nadir         = raPsd2dv1(FP_GENN_nadir,resssh,True)
     f5_nadirswot, Pf_FP_GENN_nadirswot = raPsd2dv1(FP_GENN_nadirswot,resssh,True)
+    f6_nadir, Pf_GB_GENN_nadir         = raPsd2dv1(GB_GENN_nadir,resssh,True)
+    f6_nadirswot, Pf_GB_GENN_nadirswot = raPsd2dv1(GB_GENN_nadirswot,resssh,True)
     wf_ref	        = 1/f_ref
     wf0_nadir	        = 1/f0_nadir
     wf0_nadirswot       = 1/f0_nadirswot
@@ -512,6 +577,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     wf4_nadirswot       = 1/f4_nadirswot
     wf5_nadir           = 1/f5_nadir
     wf5_nadirswot       = 1/f5_nadirswot
+    wf6_nadir           = 1/f6_nadir
+    wf6_nadirswot       = 1/f6_nadirswot
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(wf_ref[1:],Pf_GT[1:],label='GT')
@@ -527,6 +594,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='dashdot',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir+swot)')
     ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
     ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='dashdot',color='darkorange',linewidth=1.5,label='FP-GENN (nadir+swot)')
+    ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
+    ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='dashdot',color='navy',linewidth=1.5,label='GB-GENN (nadir+swot)')
     ax.set_xlabel("Wavenumber", fontweight='bold')
     ax.set_ylabel("Power spectral density (m2/(cy/km))", fontweight='bold')
     ax.set_xscale('log') ; ax.set_yscale('log')
@@ -551,6 +620,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     f4_nadirswot, Pf_FP_ConvAE_nadirswot = err_raPsd2dv1(FP_ConvAE_nadirswot,gt,resssh,True)
     f5_nadir, Pf_FP_GENN_nadir         = err_raPsd2dv1(FP_GENN_nadir,gt,resssh,True)
     f5_nadirswot, Pf_FP_GENN_nadirswot = err_raPsd2dv1(FP_GENN_nadirswot,gt,resssh,True)
+    f6_nadir, Pf_GB_GENN_nadir         = err_raPsd2dv1(GB_GENN_nadir,gt,resssh,True)
+    f6_nadirswot, Pf_GB_GENN_nadirswot = err_raPsd2dv1(GB_GENN_nadirswot,gt,resssh,True)
     wf0_nadir           = 1/f0_nadir
     wf0_nadirswot       = 1/f0_nadirswot
     wf1_nadir           = 1/f1_nadir
@@ -563,6 +634,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     wf4_nadirswot       = 1/f4_nadirswot
     wf5_nadir           = 1/f5_nadir
     wf5_nadirswot       = 1/f5_nadirswot
+    wf6_nadir           = 1/f6_nadir
+    wf6_nadirswot       = 1/f6_nadirswot
     fig = plt.figure()
     ax = fig.add_subplot(111)
     ax.plot(wf0_nadir[1:],Pf_OI_nadir[1:],linestyle='solid',color='red',linewidth=1.5,label='OI (nadir)')
@@ -577,6 +650,8 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='dashdot',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir+swot)')
     ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
     ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='dashdot',color='darkorange',linewidth=1.5,label='FP-GENN (nadir+swot)')
+    ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
+    ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='dashdot',color='navy',linewidth=1.5,label='GB-GENN (nadir+swot)')
     ax.set_xlabel("Wavenumber", fontweight='bold')
     ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
     ax.set_xscale('log') ; ax.set_yscale('log')
@@ -597,6 +672,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     ax.plot(wf3_nadir[1:],Pf_VE_DINEOF_nadir[1:],linestyle='solid',color='steelblue',linewidth=1.5,label='VE-DINEOF (nadir)')
     ax.plot(wf4_nadir[1:],Pf_FP_ConvAE_nadir[1:],linestyle='solid',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir)')
     ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
+    ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
     ax.set_xlabel("Wavenumber", fontweight='bold')
     ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
     ax.set_xscale('log') ; ax.set_yscale('log')
@@ -617,6 +693,7 @@ for i in range(0,len(AnDA_ssh_1.GT)):
     ax.plot(wf3_nadirswot[1:],Pf_VE_DINEOF_nadirswot[1:],linestyle='solid',color='steelblue',linewidth=1.5,label='VE-DINEOF (nadirswot)')
     ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='solid',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadirswot)')
     ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadirswot)')
+    ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadirswot)')
     ax.set_xlabel("Wavenumber", fontweight='bold')
     ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
     ax.set_xscale('log') ; ax.set_yscale('log')
@@ -632,7 +709,7 @@ index=list(range(5,16))
 index.extend(range(25,36))
 index.extend(range(45,56))
 index.extend(range(65,76))
-tab_scores = np.zeros((10,3))
+tab_scores = np.zeros((12,3))
 tab_scores[0,0] = np.nanmean(nrmse_OI_nadir[index])
 tab_scores[0,1] = np.percentile(nrmse_OI_nadir[index],5)
 tab_scores[0,2] = np.percentile(nrmse_OI_nadir[index],95)
@@ -648,21 +725,27 @@ tab_scores[3,2] = np.percentile(nrmse_FP_ConvAE_nadir[index],95)
 tab_scores[4,0] = np.nanmean(nrmse_FP_GENN_nadir[index])
 tab_scores[4,1] = np.percentile(nrmse_FP_GENN_nadir[index],5)
 tab_scores[4,2] = np.percentile(nrmse_FP_GENN_nadir[index],95)
-tab_scores[5,0] = np.nanmean(nrmse_OI_nadirswot[index])
-tab_scores[5,1] = np.percentile(nrmse_OI_nadirswot[index],5)
-tab_scores[5,2] = np.percentile(nrmse_OI_nadirswot[index],95)
-tab_scores[6,0] = np.nanmean(nrmse_Post_AnDA_nadirswot[index])
-tab_scores[6,1] = np.percentile(nrmse_Post_AnDA_nadirswot[index],5)
-tab_scores[6,2] = np.percentile(nrmse_Post_AnDA_nadirswot[index],95)
-tab_scores[7,0] = np.nanmean(nrmse_VE_DINEOF_nadirswot[index])
-tab_scores[7,1] = np.percentile(nrmse_VE_DINEOF_nadirswot[index],5)
-tab_scores[7,2] = np.percentile(nrmse_VE_DINEOF_nadirswot[index],95)
-tab_scores[8,0] = np.nanmean(nrmse_FP_ConvAE_nadirswot[index])
-tab_scores[8,1] = np.percentile(nrmse_FP_ConvAE_nadirswot[index],5)
-tab_scores[8,2] = np.percentile(nrmse_FP_ConvAE_nadirswot[index],95)
-tab_scores[9,0] = np.nanmean(nrmse_FP_GENN_nadirswot[index])
-tab_scores[9,1] = np.percentile(nrmse_FP_GENN_nadirswot[index],5)
-tab_scores[9,2] = np.percentile(nrmse_FP_GENN_nadirswot[index],95)
+tab_scores[5,0] = np.nanmean(nrmse_GB_GENN_nadir[index])
+tab_scores[5,1] = np.percentile(nrmse_GB_GENN_nadir[index],5)
+tab_scores[5,2] = np.percentile(nrmse_GB_GENN_nadir[index],95)
+tab_scores[6,0] = np.nanmean(nrmse_OI_nadirswot[index])
+tab_scores[6,1] = np.percentile(nrmse_OI_nadirswot[index],5)
+tab_scores[6,2] = np.percentile(nrmse_OI_nadirswot[index],95)
+tab_scores[7,0] = np.nanmean(nrmse_Post_AnDA_nadirswot[index])
+tab_scores[7,1] = np.percentile(nrmse_Post_AnDA_nadirswot[index],5)
+tab_scores[7,2] = np.percentile(nrmse_Post_AnDA_nadirswot[index],95)
+tab_scores[8,0] = np.nanmean(nrmse_VE_DINEOF_nadirswot[index])
+tab_scores[8,1] = np.percentile(nrmse_VE_DINEOF_nadirswot[index],5)
+tab_scores[8,2] = np.percentile(nrmse_VE_DINEOF_nadirswot[index],95)
+tab_scores[9,0] = np.nanmean(nrmse_FP_ConvAE_nadirswot[index])
+tab_scores[9,1] = np.percentile(nrmse_FP_ConvAE_nadirswot[index],5)
+tab_scores[9,2] = np.percentile(nrmse_FP_ConvAE_nadirswot[index],95)
+tab_scores[10,0] = np.nanmean(nrmse_FP_GENN_nadirswot[index])
+tab_scores[10,1] = np.percentile(nrmse_FP_GENN_nadirswot[index],5)
+tab_scores[10,2] = np.percentile(nrmse_FP_GENN_nadirswot[index],95)
+tab_scores[11,0] = np.nanmean(nrmse_GB_GENN_nadirswot[index])
+tab_scores[11,1] = np.percentile(nrmse_GB_GENN_nadirswot[index],5)
+tab_scores[11,2] = np.percentile(nrmse_GB_GENN_nadirswot[index],95)
 np.savetxt(fname=workpath+"/tab_scores_SSH_nRMSE.txt",X=tab_scores,fmt='%2.2f')
 
 ## Scores tables (nRMSE Grad) 
@@ -670,7 +753,7 @@ index=list(range(5,16))
 index.extend(range(25,36))
 index.extend(range(45,56))
 index.extend(range(65,76))
-tab_scores = np.zeros((10,3))
+tab_scores = np.zeros((12,3))
 tab_scores[0,0] = np.nanmean(nrmse_Grad_OI_nadir[index])
 tab_scores[0,1] = np.percentile(nrmse_Grad_OI_nadir[index],5)
 tab_scores[0,2] = np.percentile(nrmse_Grad_OI_nadir[index],95)
@@ -686,21 +769,24 @@ tab_scores[3,2] = np.percentile(nrmse_Grad_FP_ConvAE_nadir[index],95)
 tab_scores[4,0] = np.nanmean(nrmse_Grad_FP_GENN_nadir[index])
 tab_scores[4,1] = np.percentile(nrmse_Grad_FP_GENN_nadir[index],5)
 tab_scores[4,2] = np.percentile(nrmse_Grad_FP_GENN_nadir[index],95)
-tab_scores[5,0] = np.nanmean(nrmse_Grad_OI_nadirswot[index])
-tab_scores[5,1] = np.percentile(nrmse_Grad_OI_nadirswot[index],5)
-tab_scores[5,2] = np.percentile(nrmse_Grad_OI_nadirswot[index],95)
-tab_scores[6,0] = np.nanmean(nrmse_Grad_Post_AnDA_nadirswot[index])
-tab_scores[6,1] = np.percentile(nrmse_Grad_Post_AnDA_nadirswot[index],5)
-tab_scores[6,2] = np.percentile(nrmse_Grad_Post_AnDA_nadirswot[index],95)
-tab_scores[7,0] = np.nanmean(nrmse_Grad_VE_DINEOF_nadirswot[index])
-tab_scores[7,1] = np.percentile(nrmse_Grad_VE_DINEOF_nadirswot[index],5)
-tab_scores[7,2] = np.percentile(nrmse_Grad_VE_DINEOF_nadirswot[index],95)
-tab_scores[8,0] = np.nanmean(nrmse_Grad_FP_ConvAE_nadirswot[index])
-tab_scores[8,1] = np.percentile(nrmse_Grad_FP_ConvAE_nadirswot[index],5)
-tab_scores[8,2] = np.percentile(nrmse_Grad_FP_ConvAE_nadirswot[index],95)
-tab_scores[9,0] = np.nanmean(nrmse_Grad_FP_GENN_nadirswot[index])
-tab_scores[9,1] = np.percentile(nrmse_Grad_FP_GENN_nadirswot[index],5)
-tab_scores[9,2] = np.percentile(nrmse_Grad_FP_GENN_nadirswot[index],95)
+tab_scores[5,0] = np.nanmean(nrmse_Grad_GB_GENN_nadir[index])
+tab_scores[5,1] = np.percentile(nrmse_Grad_GB_GENN_nadir[index],5)
+tab_scores[5,2] = np.percentile(nrmse_Grad_GB_GENN_nadir[index],95)
+tab_scores[6,0] = np.nanmean(nrmse_Grad_OI_nadirswot[index])
+tab_scores[6,1] = np.percentile(nrmse_Grad_OI_nadirswot[index],5)
+tab_scores[6,2] = np.percentile(nrmse_Grad_OI_nadirswot[index],95)
+tab_scores[7,0] = np.nanmean(nrmse_Grad_Post_AnDA_nadirswot[index])
+tab_scores[7,1] = np.percentile(nrmse_Grad_Post_AnDA_nadirswot[index],5)
+tab_scores[7,2] = np.percentile(nrmse_Grad_Post_AnDA_nadirswot[index],95)
+tab_scores[8,0] = np.nanmean(nrmse_Grad_VE_DINEOF_nadirswot[index])
+tab_scores[8,1] = np.percentile(nrmse_Grad_VE_DINEOF_nadirswot[index],5)
+tab_scores[8,2] = np.percentile(nrmse_Grad_VE_DINEOF_nadirswot[index],95)
+tab_scores[9,0] = np.nanmean(nrmse_Grad_FP_ConvAE_nadirswot[index])
+tab_scores[9,1] = np.percentile(nrmse_Grad_FP_ConvAE_nadirswot[index],5)
+tab_scores[9,2] = np.percentile(nrmse_Grad_FP_ConvAE_nadirswot[index],95)
+tab_scores[10,0] = np.nanmean(nrmse_Grad_FP_GENN_nadirswot[index])
+tab_scores[10,1] = np.percentile(nrmse_Grad_FP_GENN_nadirswot[index],5)
+tab_scores[11,2] = np.percentile(nrmse_Grad_FP_GENN_nadirswot[index],95)
 np.savetxt(fname=workpath+"/tab_scores_GradSSH_nRMSE.txt",X=tab_scores,fmt='%2.2f')
 
 ## SSH score tables (mean of daily scores)
@@ -708,7 +794,7 @@ index=list(range(5,16))
 index.extend(range(25,36))
 index.extend(range(45,56))
 index.extend(range(65,76))
-tab_scores = np.zeros((10,3))
+tab_scores = np.zeros((12,3))
 tab_scores[0,0] = np.nanmean(R_OI_nadir)
 tab_scores[0,1] = np.nanmean(I_OI_nadir)
 tab_scores[0,2] = np.nan
@@ -724,25 +810,31 @@ tab_scores[3,2] = np.nanmean(AE_FP_ConvAE_nadir)
 tab_scores[4,0] = np.nanmean(R_FP_GENN_nadir)
 tab_scores[4,1] = np.nanmean(I_FP_GENN_nadir)
 tab_scores[4,2] = np.nanmean(AE_FP_GENN_nadir)
-tab_scores[5,0] = np.nanmean(R_OI_nadirswot)
-tab_scores[5,1] = np.nanmean(I_OI_nadirswot)
-tab_scores[5,2] = np.nan
-tab_scores[6,0] = np.nanmean(R_Post_AnDA_nadirswot)
-tab_scores[6,1] = np.nanmean(I_Post_AnDA_nadirswot)
+tab_scores[5,0] = np.nanmean(R_GB_GENN_nadir)
+tab_scores[5,1] = np.nanmean(I_GB_GENN_nadir)
+tab_scores[5,2] = np.nanmean(AE_GB_GENN_nadir)
+tab_scores[6,0] = np.nanmean(R_OI_nadirswot)
+tab_scores[6,1] = np.nanmean(I_OI_nadirswot)
 tab_scores[6,2] = np.nan
-tab_scores[7,0] = np.nanmean(R_VE_DINEOF_nadirswot)
-tab_scores[7,1] = np.nanmean(I_VE_DINEOF_nadirswot)
+tab_scores[7,0] = np.nanmean(R_Post_AnDA_nadirswot)
+tab_scores[7,1] = np.nanmean(I_Post_AnDA_nadirswot)
 tab_scores[7,2] = np.nan
-tab_scores[8,0] = np.nanmean(R_FP_ConvAE_nadirswot)
-tab_scores[8,1] = np.nanmean(I_FP_ConvAE_nadirswot)
-tab_scores[8,2] = np.nanmean(AE_FP_ConvAE_nadirswot)
-tab_scores[9,0] = np.nanmean(R_FP_GENN_nadirswot)
-tab_scores[9,1] = np.nanmean(I_FP_GENN_nadirswot)
-tab_scores[9,2] = np.nanmean(AE_FP_GENN_nadirswot)
+tab_scores[8,0] = np.nanmean(R_VE_DINEOF_nadirswot)
+tab_scores[8,1] = np.nanmean(I_VE_DINEOF_nadirswot)
+tab_scores[8,2] = np.nan
+tab_scores[9,0] = np.nanmean(R_FP_ConvAE_nadirswot)
+tab_scores[9,1] = np.nanmean(I_FP_ConvAE_nadirswot)
+tab_scores[9,2] = np.nanmean(AE_FP_ConvAE_nadirswot)
+tab_scores[10,0] = np.nanmean(R_FP_GENN_nadirswot)
+tab_scores[10,1] = np.nanmean(I_FP_GENN_nadirswot)
+tab_scores[10,2] = np.nanmean(AE_FP_GENN_nadirswot)
+tab_scores[11,0] = np.nanmean(R_GB_GENN_nadirswot)
+tab_scores[11,1] = np.nanmean(I_GB_GENN_nadirswot)
+tab_scores[11,2] = np.nanmean(AE_GB_GENN_nadirswot)
 np.savetxt(fname=workpath+"/tab_scores_SSH.txt",X=tab_scores,fmt='%2.2f')
 
 ## GradSSH score tables (mean of daily scores)
-tab_scores = np.zeros((10,3))
+tab_scores = np.zeros((12,3))
 tab_scores[0,0] = np.nanmean(R_Grad_OI_nadir)
 tab_scores[0,1] = np.nanmean(I_Grad_OI_nadir)
 tab_scores[0,2] = np.nan
@@ -758,21 +850,27 @@ tab_scores[3,2] = np.nanmean(AE_Grad_FP_ConvAE_nadir)
 tab_scores[4,0] = np.nanmean(R_Grad_FP_GENN_nadir)
 tab_scores[4,1] = np.nanmean(I_Grad_FP_GENN_nadir)
 tab_scores[4,2] = np.nanmean(AE_Grad_FP_GENN_nadir)
-tab_scores[5,0] = np.nanmean(R_Grad_OI_nadirswot)
-tab_scores[5,1] = np.nanmean(I_Grad_OI_nadirswot)
-tab_scores[5,2] = np.nan
-tab_scores[6,0] = np.nanmean(R_Grad_Post_AnDA_nadirswot)
-tab_scores[6,1] = np.nanmean(I_Grad_Post_AnDA_nadirswot)
+tab_scores[5,0] = np.nanmean(R_Grad_GB_GENN_nadir)
+tab_scores[5,1] = np.nanmean(I_Grad_GB_GENN_nadir)
+tab_scores[5,2] = np.nanmean(AE_Grad_GB_GENN_nadir)
+tab_scores[6,0] = np.nanmean(R_Grad_OI_nadirswot)
+tab_scores[6,1] = np.nanmean(I_Grad_OI_nadirswot)
 tab_scores[6,2] = np.nan
-tab_scores[7,0] = np.nanmean(R_Grad_VE_DINEOF_nadirswot)
-tab_scores[7,1] = np.nanmean(I_Grad_VE_DINEOF_nadirswot)
+tab_scores[7,0] = np.nanmean(R_Grad_Post_AnDA_nadirswot)
+tab_scores[7,1] = np.nanmean(I_Grad_Post_AnDA_nadirswot)
 tab_scores[7,2] = np.nan
-tab_scores[8,0] = np.nanmean(R_Grad_FP_ConvAE_nadirswot)
-tab_scores[8,1] = np.nanmean(I_Grad_FP_ConvAE_nadirswot)
-tab_scores[8,2] = np.nanmean(AE_Grad_FP_ConvAE_nadirswot)
-tab_scores[9,0] = np.nanmean(R_Grad_FP_GENN_nadirswot)
-tab_scores[9,1] = np.nanmean(I_Grad_FP_GENN_nadirswot)
-tab_scores[9,2] = np.nanmean(AE_Grad_FP_GENN_nadirswot)
+tab_scores[8,0] = np.nanmean(R_Grad_VE_DINEOF_nadirswot)
+tab_scores[8,1] = np.nanmean(I_Grad_VE_DINEOF_nadirswot)
+tab_scores[8,2] = np.nan
+tab_scores[9,0] = np.nanmean(R_Grad_FP_ConvAE_nadirswot)
+tab_scores[9,1] = np.nanmean(I_Grad_FP_ConvAE_nadirswot)
+tab_scores[9,2] = np.nanmean(AE_Grad_FP_ConvAE_nadirswot)
+tab_scores[10,0] = np.nanmean(R_Grad_FP_GENN_nadirswot)
+tab_scores[10,1] = np.nanmean(I_Grad_FP_GENN_nadirswot)
+tab_scores[10,2] = np.nanmean(AE_Grad_FP_GENN_nadirswot)
+tab_scores[11,0] = np.nanmean(R_Grad_GB_GENN_nadirswot)
+tab_scores[11,1] = np.nanmean(I_Grad_GB_GENN_nadirswot)
+tab_scores[11,2] = np.nanmean(AE_Grad_GB_GENN_nadirswot)
 np.savetxt(fname=workpath+"/tab_scores_GradSSH.txt",X=tab_scores,fmt='%2.2f')
 
 def Iscore(mask1,gt,itrp):
@@ -807,7 +905,7 @@ DataReconstructed_global = np.dot(score_global, coeff_global.T) +mu_global
 lr[:,sea_v2] = DataReconstructed_global
 lr = lr.reshape(HR.shape).flatten()
 # create scores table
-tab_scores = np.zeros((10,3))
+tab_scores = np.zeros((12,3))
 tab_scores[0,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon].flatten()-lr)
 tab_scores[0,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon].flatten()-lr)
 tab_scores[0,2] = np.nan
@@ -823,21 +921,27 @@ tab_scores[3,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_C
 tab_scores[4,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
 tab_scores[4,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
 tab_scores[4,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
-tab_scores[5,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr)
-tab_scores[5,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr)
-tab_scores[5,2] = np.nan
-tab_scores[6,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
-tab_scores[6,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
+tab_scores[5,0] = Rscore(mask1_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_GB_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[5,1] = Iscore(mask2_nadir,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_GB_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[5,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_GB_GENN_nadir[:,:indLat,:indLon].flatten()-lr)
+tab_scores[6,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr)
+tab_scores[6,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon].flatten()-lr)
 tab_scores[6,2] = np.nan
-tab_scores[7,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr)
-tab_scores[7,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[7,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
+tab_scores[7,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon].flatten()-lr)
 tab_scores[7,2] = np.nan
-tab_scores[8,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
-tab_scores[8,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
-tab_scores[8,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
-tab_scores[9,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
-tab_scores[9,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
-tab_scores[9,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[8,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[8,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[8,2] = np.nan
+tab_scores[9,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[9,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[9,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[10,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[10,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[10,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[11,0] = Rscore(mask1_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_GB_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[11,1] = Iscore(mask2_nadirswot,AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,itrp_GB_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
+tab_scores[11,2] = AEscore(AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,rec_GB_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr)
 np.savetxt(fname=workpath+"/tab_scores_SSH_2.txt",X=tab_scores,fmt='%2.2f')
 
 ## Taylor diagrams
@@ -848,6 +952,7 @@ label=['GT',\
        'Post-AnDA (nadir)','Post-AnDA (nadir+swot)',\
        'FP-ConvAE (nadir)','FP-ConvAE (nadir+swot)',\
        'FP-GENN (nadir)','FP-GENN (nadir+swot)',\
+       'GB-GENN (nadir)','GB-GENN (nadir+swot)',\
        'VE-DINEOF (nadir)','VE-DINEOF (nadir+swot)']
 series={'gt':AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,
         'OI_nadir':AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon].flatten()-lr,
@@ -860,14 +965,17 @@ series={'gt':AnDA_ssh_1.GT[:,:indLat,:indLon].flatten()-lr,
         'FP_ConvAE_nadirswot':itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon].flatten()-lr,
         'FP_GENN_nadir':itrp_FP_GENN_nadir[:,:indLat,:indLon].flatten()-lr,\
         'FP_GENN_nadirswot':itrp_FP_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr,
+        'GB_GENN_nadir':itrp_GB_GENN_nadir[:,:indLat,:indLon].flatten()-lr,\
+        'GB_GENN_nadirswot':itrp_GB_GENN_nadirswot[:,:indLat,:indLon].flatten()-lr,
         'VE_DINEOF_nadir':itrp_dineof_nadir[:,:indLat,:indLon].flatten()-lr,\
         'VE_DINEOF_nadirswot':itrp_dineof_nadirswot[:,:indLat,:indLon].flatten()-lr}
 Taylor_diag(series,label,\
-            styles=['k','p','o','p','o','p','o','p','o','p','o','p','o'],\
+            styles=['k','p','o','p','o','p','o','p','o','p','o','p','o','p','o'],\
             colors=['k','y','y','mediumseagreen','mediumseagreen',\
                                 'seagreen','seagreen',\
                                 'mediumorchid','mediumorchid',\
                                 'darkorange','darkorange',\
+                                'navy','navy',\
                                 'steelblue','steelblue'])
 plt.savefig(resfile)
 plt.close()
@@ -887,6 +995,8 @@ f4_nadir, Pf_FP_ConvAE_nadir         = avg_raPsd2dv1(itrp_FP_ConvAE_nadir,resssh
 f4_nadirswot, Pf_FP_ConvAE_nadirswot = avg_raPsd2dv1(itrp_FP_ConvAE_nadirswot,resssh,True)
 f5_nadir, Pf_FP_GENN_nadir           = avg_raPsd2dv1(itrp_FP_GENN_nadir,resssh,True)
 f5_nadirswot, Pf_FP_GENN_nadirswot   = avg_raPsd2dv1(itrp_FP_GENN_nadirswot,resssh,True)
+f6_nadir, Pf_GB_GENN_nadir           = avg_raPsd2dv1(itrp_GB_GENN_nadir,resssh,True)
+f6_nadirswot, Pf_GB_GENN_nadirswot   = avg_raPsd2dv1(itrp_GB_GENN_nadirswot,resssh,True)
 wf_ref        = 1/f_ref
 wf0_nadir     = 1/f0_nadir
 wf0_nadirswot = 1/f0_nadirswot
@@ -900,6 +1010,8 @@ wf4_nadir     = 1/f4_nadir
 wf4_nadirswot = 1/f4_nadirswot
 wf5_nadir     = 1/f5_nadir
 wf5_nadirswot = 1/f5_nadirswot
+wf6_nadir     = 1/f6_nadir
+wf6_nadirswot = 1/f6_nadirswot
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(wf_ref[1:],Pf_GT[1:],label='GT')
@@ -915,6 +1027,8 @@ ax.plot(wf4_nadir[1:],Pf_FP_ConvAE_nadir[1:],linestyle='solid',color='mediumorch
 ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='dashdot',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir+swot)')
 ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
 ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='dashdot',color='darkorange',linewidth=1.5,label='FP-GENN (nadir+swot)')
+ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
+ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='dashdot',color='navy',linewidth=1.5,label='GB-GENN (nadir+swot)')
 ax.set_xlabel("Wavenumber", fontweight='bold')
 ax.set_ylabel("Power spectral density (m2/(cy/km))", fontweight='bold')
 ax.set_xscale('log') ; ax.set_yscale('log')
@@ -936,6 +1050,7 @@ ax.plot(wf2_nadir[1:],Pf_postAnDA_nadir[1:],linestyle='solid',color='seagreen',l
 ax.plot(wf3_nadir[1:],Pf_VE_DINEOF_nadir[1:],linestyle='solid',color='steelblue',linewidth=1.5,label='VE-DINEOF (nadir)')
 ax.plot(wf4_nadir[1:],Pf_FP_ConvAE_nadir[1:],linestyle='solid',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir)')
 ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
+ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
 ax.set_xlabel("Wavenumber", fontweight='bold')
 ax.set_ylabel("Power spectral density (m2/(cy/km))", fontweight='bold')
 ax.set_xscale('log') ; ax.set_yscale('log')
@@ -957,6 +1072,7 @@ ax.plot(wf2_nadirswot[1:],Pf_postAnDA_nadirswot[1:],linestyle='solid',color='sea
 ax.plot(wf3_nadirswot[1:],Pf_VE_DINEOF_nadirswot[1:],linestyle='solid',color='steelblue',linewidth=1.5,label='VE-DINEOF (nadir+swot)')
 ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='solid',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir+swot)')
 ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir+swot)')
+ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir+swot)')
 ax.set_xlabel("Wavenumber", fontweight='bold')
 ax.set_ylabel("Power spectral density (m2/(cy/km))", fontweight='bold')
 ax.set_xscale('log') ; ax.set_yscale('log')
@@ -981,6 +1097,8 @@ f4_nadir, Pf_FP_ConvAE_nadir         = avg_err_raPsd2dv1(itrp_FP_ConvAE_nadir[:,
 f4_nadirswot, Pf_FP_ConvAE_nadirswot = avg_err_raPsd2dv1(itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
 f5_nadir, Pf_FP_GENN_nadir           = avg_err_raPsd2dv1(itrp_FP_GENN_nadir[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
 f5_nadirswot, Pf_FP_GENN_nadirswot   = avg_err_raPsd2dv1(itrp_FP_GENN_nadirswot[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f6_nadir, Pf_GB_GENN_nadir           = avg_err_raPsd2dv1(itrp_GB_GENN_nadir[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
+f6_nadirswot, Pf_GB_GENN_nadirswot   = avg_err_raPsd2dv1(itrp_GB_GENN_nadirswot[:,:indLat,:indLon],AnDA_ssh_1.GT[:,:indLat,:indLon],resssh,True)
 wf0_nadir = 1/f0_nadir
 wf0_nadirswot = 1/f0_nadirswot
 wf1_nadir   = 1/f1_nadir
@@ -993,6 +1111,8 @@ wf4_nadir           = 1/f4_nadir
 wf4_nadirswot       = 1/f4_nadirswot
 wf5_nadir           = 1/f5_nadir
 wf5_nadirswot       = 1/f5_nadirswot
+wf6_nadir           = 1/f6_nadir
+wf6_nadirswot       = 1/f6_nadirswot
 fig = plt.figure()
 ax = fig.add_subplot(111)
 ax.plot(wf0_nadir[1:],Pf_OI_nadir[1:],linestyle='solid',color='red',linewidth=1.5,label='OI (nadir)')
@@ -1007,6 +1127,8 @@ ax.plot(wf4_nadir[1:],Pf_FP_ConvAE_nadir[1:],linestyle='solid',color='mediumorch
 ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='dashdot',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir+swot)')
 ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
 ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='dashdot',color='darkorange',linewidth=1.5,label='FP-GENN (nadir+swot)')
+ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
+ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='dashdot',color='navy',linewidth=1.5,label='GB-GENN (nadir+swot)')
 ax.set_xlabel("Wavenumber", fontweight='bold')
 ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
 ax.set_xscale('log') ; ax.set_yscale('log')
@@ -1027,6 +1149,7 @@ ax.plot(wf2_nadir[1:],Pf_postAnDA_nadir[1:],linestyle='solid',color='seagreen',l
 ax.plot(wf3_nadir[1:],Pf_VE_DINEOF_nadir[1:],linestyle='solid',color='steelblue',linewidth=1.5,label='VE-DINEOF (nadir)')
 ax.plot(wf4_nadir[1:],Pf_FP_ConvAE_nadir[1:],linestyle='solid',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir)')
 ax.plot(wf5_nadir[1:],Pf_FP_GENN_nadir[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir)')
+ax.plot(wf6_nadir[1:],Pf_GB_GENN_nadir[1:],linestyle='solid',color='navy',linewidth=1.5,label='GB-GENN (nadir)')
 ax.set_xlabel("Wavenumber", fontweight='bold')
 ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
 ax.set_xscale('log') ; ax.set_yscale('log')
@@ -1048,6 +1171,7 @@ ax.plot(wf2_nadirswot[1:],Pf_postAnDA_nadirswot[1:],linestyle='solid',color='sea
 ax.plot(wf3_nadirswot[1:],Pf_VE_DINEOF_nadirswot[1:],linestyle='solid',color='steelblue',linewidth=1.5,label='VE-DINEOF (nadir+swot)')
 ax.plot(wf4_nadirswot[1:],Pf_FP_ConvAE_nadirswot[1:],linestyle='solid',color='mediumorchid',linewidth=1.5,label='FP-ConvAE (nadir+swot)')
 ax.plot(wf5_nadirswot[1:],Pf_FP_GENN_nadirswot[1:],linestyle='solid',color='darkorange',linewidth=1.5,label='FP-GENN (nadir+swot)')
+ax.plot(wf6_nadirswot[1:],Pf_GB_GENN_nadirswot[1:],linestyle='dashdot',color='navy',linewidth=1.5,label='GB-GENN (nadir+swot)')
 ax.set_xlabel("Wavenumber", fontweight='bold')
 ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
 ax.set_xscale('log') ; ax.set_yscale('log')
@@ -1069,11 +1193,13 @@ plt.plot(range(N),nrmse_Post_AnDA_nadir,linestyle='solid',color='seagreen',linew
 plt.plot(range(N),nrmse_VE_DINEOF_nadir,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label='VE-DINEOF (nadir)')
 plt.plot(range(N),nrmse_FP_ConvAE_nadir,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label='FP-ConvAE (nadir)')
 plt.plot(range(N),nrmse_FP_GENN_nadir,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label='FP-GENN (nadir)')
+plt.plot(range(N),nrmse_GB_GENN_nadir,linestyle='solid',color='navy',linewidth=1,markerSize=2,label='GB-GENN (nadir)')
 plt.plot(range(N),nrmse_OI_nadirswot,linestyle='dashdot',color='red',linewidth=2,label='OI (nadir+swot)')
 plt.plot(range(N),nrmse_Post_AnDA_nadirswot,linestyle='dashdot',color='seagreen',linewidth=1,label='post-AnDA (nadir+swot)')
 plt.plot(range(N),nrmse_VE_DINEOF_nadirswot,linestyle='dashdot',color='steelblue',linewidth=1,markerSize=2,label='VE-DINEOF (nadir+swot)')
 plt.plot(range(N),nrmse_FP_ConvAE_nadirswot,linestyle='dashdot',color='mediumorchid',linewidth=1,markerSize=2,label='FP-ConvAE (nadir+swot)')
 plt.plot(range(N),nrmse_FP_GENN_nadirswot,linestyle='dashdot',color='darkorange',linewidth=1,markerSize=2,label='FP-GENN (nadir+swot)')
+plt.plot(range(N),nrmse_GB_GENN_nadirswot,linestyle='dashdot',color='navy',linewidth=1,markerSize=2,label='GB-GENN (nadir+swot)')
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
@@ -1087,7 +1213,7 @@ plt.xticks([0,20,40,60],\
            rotation=45, ha='right')
 plt.margins(x=0)
 plt.grid(True,alpha=.3)
-plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
 # second axis with spatial coverage
 axes2 = plt.twinx()
 width=0.75
@@ -1108,6 +1234,7 @@ plt.plot(range(N),nrmse_Post_AnDA_nadir,linestyle='solid',color='seagreen',linew
 plt.plot(range(N),nrmse_VE_DINEOF_nadir,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label='VE-DINEOF (nadir)')
 plt.plot(range(N),nrmse_FP_ConvAE_nadir,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label='FP-ConvAE (nadir)')
 plt.plot(range(N),nrmse_FP_GENN_nadir,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label='FP-GENN (nadir)')
+plt.plot(range(N),nrmse_GB_GENN_nadir,linestyle='solid',color='navy',linewidth=1,markerSize=2,label='GB-GENN (nadir)')
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
@@ -1121,7 +1248,7 @@ plt.xticks([0,20,40,60],\
            rotation=45, ha='right')
 plt.margins(x=0)
 plt.grid(True,alpha=.3)
-plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
 # second axis with spatial coverage
 axes2 = plt.twinx()
 width=0.75
@@ -1142,6 +1269,7 @@ plt.plot(range(N),nrmse_Post_AnDA_nadirswot,linestyle='solid',color='seagreen',l
 plt.plot(range(N),nrmse_VE_DINEOF_nadirswot,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label='VE-DINEOF (nadir+swot)')
 plt.plot(range(N),nrmse_FP_ConvAE_nadirswot,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label='FP-ConvAE (nadir+swot)')
 plt.plot(range(N),nrmse_FP_GENN_nadirswot,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label='FP-GENN (nadir+swot)')
+plt.plot(range(N),nrmse_GB_GENN_nadirswot,linestyle='solid',color='navy',linewidth=1,markerSize=2,label='GB-GENN (nadir+swot)')
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
@@ -1155,7 +1283,7 @@ plt.xticks([0,20,40,60],\
            rotation=45, ha='right')
 plt.margins(x=0)
 plt.grid(True,alpha=.3)
-plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
 # second axis with spatial coverage
 axes2 = plt.twinx()
 width=0.75
@@ -1177,11 +1305,13 @@ plt.plot(range(N),nrmse_Grad_Post_AnDA_nadir,linestyle='solid',color='seagreen',
 plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadir,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF}$ (nadir)")
 plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadir,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE}$ (nadir)")
 plt.plot(range(N),nrmse_Grad_FP_GENN_nadir,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_GB_GENN_nadir,linestyle='solid',color='navy',linewidth=1,markerSize=2,label=r"$\nabla_{GB-GENN}$ (nadir)")
 plt.plot(range(N),nrmse_Grad_OI_nadirswot,linestyle='dashdot',color='red',linewidth=2,label=r"$\nabla_{OI}$ (nadir+swot)")
 plt.plot(range(N),nrmse_Grad_Post_AnDA_nadirswot,linestyle='dashdot',color='seagreen',linewidth=1,label=r"$\nabla_{AnDA} (nadir+swot)$")
 plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadirswot,linestyle='dashdot',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF} (nadir+swot)$")
 plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadirswot,linestyle='dashdot',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE} (nadir+swot)$")
 plt.plot(range(N),nrmse_Grad_FP_GENN_nadirswot,linestyle='dashdot',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_GB_GENN_nadirswot,linestyle='dashdot',color='navy',linewidth=1,markerSize=2,label=r"$\nabla_{GB-GENN} (nadir+swot)$")
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
@@ -1195,7 +1325,7 @@ plt.xticks([0,20,40,60],\
            rotation=45, ha='right')
 plt.margins(x=0)
 plt.grid(True,alpha=.3)
-plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
 # second axis with spatial coverage
 axes2 = plt.twinx()
 width=0.75
@@ -1216,6 +1346,7 @@ plt.plot(range(N),nrmse_Grad_Post_AnDA_nadir,linestyle='solid',color='seagreen',
 plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadir,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF}$ (nadir)")
 plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadir,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE}$ (nadir)")
 plt.plot(range(N),nrmse_Grad_FP_GENN_nadir,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN}$ (nadir)")
+plt.plot(range(N),nrmse_Grad_GB_GENN_nadir,linestyle='solid',color='navy',linewidth=1,markerSize=2,label=r"$\nabla_{GB-GENN}$ (nadir)")
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
@@ -1229,7 +1360,7 @@ plt.xticks([0,20,40,60],\
            rotation=45, ha='right')
 plt.margins(x=0)
 plt.grid(True,alpha=.3)
-plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
 # second axis with spatial coverage
 axes2 = plt.twinx()
 width=0.75
@@ -1250,6 +1381,7 @@ plt.plot(range(N),nrmse_Grad_Post_AnDA_nadirswot,linestyle='solid',color='seagre
 plt.plot(range(N),nrmse_Grad_VE_DINEOF_nadirswot,linestyle='solid',color='steelblue',linewidth=1,markerSize=2,label=r"$\nabla_{VE-DINEOF} (nadir+swot)$")
 plt.plot(range(N),nrmse_Grad_FP_ConvAE_nadirswot,linestyle='solid',color='mediumorchid',linewidth=1,markerSize=2,label=r"$\nabla_{FP-ConvAE} (nadir+swot)$")
 plt.plot(range(N),nrmse_Grad_FP_GENN_nadirswot,linestyle='solid',color='darkorange',linewidth=1,markerSize=2,label=r"$\nabla_{FP-GENN} (nadir+swot)$")
+plt.plot(range(N),nrmse_Grad_GB_GENN_nadirswot,linestyle='solid',color='navy',linewidth=1,markerSize=2,label=r"$\nabla_{GB-GENN} (nadir+swot)$")
 # add vertical bar to divide the 4 periods
 plt.axvline(x=19)
 plt.axvline(x=39)
@@ -1263,7 +1395,7 @@ plt.xticks([0,20,40,60],\
            rotation=45, ha='right')
 plt.margins(x=0)
 plt.grid(True,alpha=.3)
-plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
 # second axis with spatial coverage
 axes2 = plt.twinx()
 width=0.75
