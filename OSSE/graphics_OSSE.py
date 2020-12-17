@@ -1,4 +1,11 @@
 from tools_OSSE import *
+import xarray as xr
+import xrft
+import logging
+import xrft
+from dask.diagnostics import ProgressBar
+import matplotlib.pyplot as plt
+from matplotlib.ticker import ScalarFormatter
 
 ## 1) Function for plotting nRMSE
 def plot_nRMSE(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resfile,gradient=False):
@@ -52,7 +59,7 @@ def plot_nRMSE(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resfile,g
            rotation=45, ha='right')
     plt.margins(x=0)
     plt.grid(True,alpha=.3)
-    plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=3,mode="expand")
+    plt.legend(loc='upper left',prop=dict(size='small'),frameon=False,bbox_to_anchor=(0,1.02,1,0.2),ncol=2,mode="expand")
     # second axis with spatial coverage
     axes2 = plt.twinx()
     width=0.75
@@ -62,7 +69,7 @@ def plot_nRMSE(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resfile,g
     elif any("Obs (nadir+swot)"==s for s in labels_data):
         p1 = axes2.bar(range(N), spatial_coverage_nadirswot, width,color='g',alpha=0.25)
     else:
-        p1 = axes2.bar(range(N), spatial_coverage_nadir, width,color='g',alpha=0.25)
+        p1 = axes2.bar(range(N), spatial_coverage_nadir, width,color='r',alpha=0.25)
     axes2.set_ylim(0, 100)
     axes2.set_ylabel('Spatial Coverage (%)')
     axes2.margins(x=0)
@@ -72,13 +79,19 @@ def plot_nRMSE(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resfile,g
 ## 2) Function for plotting Signal-to-Noise ratio
 def plot_SNR(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resssh,resfile):
 
-    GT  = list_data[0]
-    OBS = list_data[1]
+    # select only 10-day windows
+    index=list(range(5,16))
+    index.extend(range(25,36))
+    index.extend(range(45,56))
+    index.extend(range(65,76))
+
+    GT  = list_data[0][index]
 
     # Compute Signal-to-Noise ratio
     SNR = []
     for i in range(len(labels_data[2:])):
-        f, Pf  = avg_err_raPsd2dv1(list_data[i],GT,resssh,True)
+        print(labels_data[i+2])
+        f, Pf  = avg_err_raPsd2dv1(list_data[i+2][index],GT,resssh,True)
         wf     = 1./f
         SNR.append([wf, Pf])
 
@@ -88,6 +101,7 @@ def plot_SNR(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resssh,resf
     for i in range(len(labels_data[2:])):
         wf, Pf = SNR[i]
         ax.plot(wf,Pf,linestyle=lstyle[i+2],color=colors[i+2],linewidth=lwidth[i+2],label=labels_data[i+2])
+    #plt.axhline(y=0.5, color='r', linestyle='-')
     ax.set_xlabel("Wavenumber", fontweight='bold')
     ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
     ax.set_xscale('log') ; ax.set_yscale('log')
@@ -101,8 +115,14 @@ def plot_SNR(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resssh,resf
 ## 3) Function for plotting Taylor diagrams
 def Taylor_diagram(list_data,labels_data,colors,lstyle,resfile):
 
+    # select only 10-day windows
+    index=list(range(5,16))
+    index.extend(range(25,36))
+    index.extend(range(45,56))
+    index.extend(range(65,76))
+
     # apply High-Pass Filter to visualize Taylor diagrams only for small scales
-    HR = list_data[2]
+    HR = list_data[2][index]
     lr = np.copy(HR).reshape(HR.shape[0],-1)
     tmp = lr[0,:]
     sea_v2 = np.where(~np.isnan(tmp))[0]
@@ -118,7 +138,7 @@ def Taylor_diagram(list_data,labels_data,colors,lstyle,resfile):
     # create a dictionnary with data
     series={}
     for i in np.delete(np.arange(len(list_data)),1):
-        series[labels_data[i]] = list_data[i].flatten()-lr
+        series[labels_data[i]] = list_data[i][index].flatten()-lr
     Taylor_diag(series,np.delete(labels_data,1),\
             styles=np.delete(lstyle,1),\
             colors=np.delete(colors,1))
@@ -129,11 +149,11 @@ def Taylor_diagram(list_data,labels_data,colors,lstyle,resfile):
 ## 4) Display individual maps (SSH & Gradients)
 def plot_maps(list_data,list_suffix,labels_data,list_day,date,extent,lon,lat,workpath):
     # vmin/vmax based on GT
+    iday = np.where(list_day==date)[0][0]
     vmax = np.nanmax(np.abs(list_data[0]))
     vmin = -1.*vmax
-    grad_vmax = np.nanmax(np.abs(Gradient(list_data[0],2)))
+    grad_vmax = np.nanmax(np.abs(Gradient(list_data[0][iday],2)))
     grad_vmin = 0
-    iday = np.where(list_day==date)[0][0]
     for i in range(len(list_data)):
         resfile = workpath+"/results_"+list_suffix[i]+'_'+date+".png"
         fig, ax = plt.subplots(1,1,figsize=(10,10),squeeze=False,
@@ -211,4 +231,161 @@ def RIAE_scores(list_data,labels_data,resfile,gradient=False):
         else:
             tab_scores[i,2] = np.nan
     np.savetxt(fname=resfile,X=tab_scores,fmt='%2.2f')
+
+# 5) export NetCDF
+def export_NetCDF(list_data,labels_data,list_day,lon,lat,resfile):
+
+    GT  = list_data[0]
+    dt64 = [ np.datetime64(datetime.strptime(day,'%Y-%m-%d')) for day in list_day ]
+    time_u = (dt64 - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 's')
+    mesh_lat, mesh_lon = np.meshgrid(range(len(lat)),range(len(lon)))
+    data = xr.Dataset(\
+                    data_vars={'longitude': (('lat','lon'),mesh_lon),\
+                                'latitude' : (('lat','lon'),mesh_lat),\
+                                'Time'     : (('time'),time_u),\
+                                'GT'       : (('time','lat','lon'),GT)},\
+                    coords={'lon': lon,\
+                            'lat': lat,\
+                            #'time': range(0,len(time_u))})
+                            'time': time_u})
+    # add variables
+    for i in range(len(labels_data[1:])):
+        data[labels_data[i+1]] = (('time','lat','lon'), list_data[i+1])
+    # write to file
+    data.to_netcdf(resfile)
+
+## 6) New PSD scores
+def PSD(ds,time,method):
+
+    # Compute error = SSH_reconstruction - SSH_true
+    err = (ds['GT'] - ds[method])
+    # rechunk
+    err = err.chunk({"lat":1, 'time': err['time'].size, 'lon': err['lon'].size})
+    err['time'] = time
+
+    # Rechunk SSH_true
+    signal = ds['GT'].chunk({"lat":1, 'time': ds['time'].size, 'lon': ds['lon'].size})
+    # make time vector in days units
+    signal['time'] = time
+    
+    # Compute PSD_err and PSD_signal
+    psd_err = xrft.power_spectrum(err, dim=['time', 'lon'], detrend='linear', window=True).compute()
+    psd_signal = xrft.power_spectrum(signal, dim=['time', 'lon'], detrend='linear', window=True).compute()
+        
+    # Averaged over latitude
+    mean_psd_signal = psd_signal.mean(dim='lat').where((psd_signal.freq_lon > 0.) & (psd_signal.freq_time > 0), drop=True)
+    mean_psd_err = psd_err.mean(dim='lat').where((psd_err.freq_lon > 0.) & (psd_err.freq_time > 0), drop=True)
+        
+    # return PSD-based score
+    psd_based_score = (1.0 - mean_psd_err/mean_psd_signal)
+    
+    # Find the key metrics: shortest temporal & spatial scales resolved based on the 0.5 contour criterion of the PSD_score
+    level = [0.5]
+    cs = plt.contour(1./psd_based_score.freq_lon.values,1./psd_based_score.freq_time.values, psd_based_score, level)
+    x05, y05 = cs.collections[0].get_paths()[0].vertices.T
+
+    shortest_spatial_wavelength_resolved = np.min(x05)
+    shortest_temporal_wavelength_resolved = np.min(y05)
+    
+    return (1.0 - mean_psd_err/mean_psd_signal), np.round(shortest_spatial_wavelength_resolved, 2), np.round(shortest_temporal_wavelength_resolved, 2)
+
+def plot_psd_score(ds_psd,resfile):
+
+    try:
+        nb_experiment = len(ds_psd.experiment)
+    except:
+        nb_experiment = 1
+
+    fig, ax0 =  plt.subplots(1, nb_experiment, sharey=True, figsize=(5*nb_experiment, 5))
+    #plt.subplots_adjust(right=0.1, left=0.09)
+    for exp in range(nb_experiment):
+        try:
+            ctitle = ds_psd.experiment.values[exp]
+        except:
+            ctitle = ''
+
+        if nb_experiment > 1:
+            ax = ax0[exp]
+            data = (ds_psd.isel(experiment=exp).values)
+        else:
+            ax = ax0
+            data = (ds_psd.values)
+        ax.invert_yaxis()
+        ax.invert_xaxis()
+        c1 = ax.contourf(1./(ds_psd.freq_lon), 1./ds_psd.freq_time, data,
+                          levels=np.arange(0,1.1, 0.1), cmap='RdYlGn', extend='both')
+        ax.set_xlabel('spatial wavelength (degree_lon)', fontweight='bold', fontsize=18)
+        ax0[0].set_ylabel('temporal wavelength (days)', fontweight='bold', fontsize=18)
+        #plt.xscale('log')
+        ax.set_yscale('log')
+        ax.grid(linestyle='--', lw=1, color='w')
+        ax.tick_params(axis='both', labelsize=18)
+        ax.set_title(f'PSD-based score ({ctitle})', fontweight='bold', fontsize=18)
+        for axis in [ax.xaxis, ax.yaxis]:
+            axis.set_major_formatter(ScalarFormatter())
+        c2 = ax.contour(1./(ds_psd.freq_lon), 1./ds_psd.freq_time, data, levels=[0.5], linewidths=2, colors='k')
+
+        cbar = fig.colorbar(c1, ax=ax, pad=0.01)
+        cbar.add_lines(c2)
+
+    bbox_props = dict(boxstyle="round,pad=0.5", fc="w", ec="k", lw=2)
+    ax0[-1].annotate('Resolved scales',
+                    xy=(1.2, 0.8),
+                    xycoords='axes fraction',
+                    xytext=(1.2, 0.55),
+                    bbox=bbox_props,
+                    arrowprops=
+                        dict(facecolor='black', shrink=0.05),
+                        horizontalalignment='left',
+                        verticalalignment='center')
+
+    ax0[-1].annotate('UN-resolved scales',
+                    xy=(1.2, 0.2),
+                    xycoords='axes fraction',
+                    xytext=(1.2, 0.45),
+                    bbox=bbox_props,
+                    arrowprops=
+                    dict(facecolor='black', shrink=0.05),
+                        horizontalalignment='left',
+                        verticalalignment='center')
+
+    plt.savefig(resfile)
+
+def plot_psd(ncdf_file,labels_data,list_day,resfile,periods=[[0,20],[20,40],[40,60],[60,80]]):
+
+    ds = xr.open_dataset(ncdf_file)
+    dt64 = [ np.datetime64(datetime.strptime(day,'%Y-%m-%d')) for day in list_day ]
+    time_u = (dt64 - np.datetime64('1970-01-01T00:00:00Z')) / np.timedelta64(1, 'D')
+
+    # loop over the 4 periods
+    list_PSD_all_periods = []
+    for i in range(len(periods)):
+        list_PSD = []
+        ds2  = ds.isel(time=slice(periods[i][0], periods[i][1]))
+        time = time_u[periods[i][0]:periods[i][1]]-time_u[periods[i][0]]
+        # loop over the methods
+        for j in range(len(labels_data[2:])):
+            list_PSD.append(PSD(ds2,time,labels_data[j+2])[0])
+
+        ds_psd = xr.concat(list_PSD, dim='experiment')
+        ds_psd['experiment'] = labels_data[2:]
+        plot_psd_score(ds_psd,resfile+"_period"+str(i)+".png")
+  
+        list_PSD_all_periods.append(list_PSD)
+
+    # average
+    list_PSD = []
+    for j in range(len(labels_data[2:])):
+
+        ds_psd = xr.concat([list_PSD_all_periods[i][j] for i in range(len(periods))],dim='period')
+        mean   = ds_psd.mean('period')
+        print(mean)
+        list_PSD.append(mean)
+
+    ds_psd = xr.concat(list_PSD, dim='experiment')
+    ds_psd['experiment'] = labels_data[2:]
+    plot_psd_score(ds_psd,resfile+"_mean.png")
+
+
+
 
