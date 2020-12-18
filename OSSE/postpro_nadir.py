@@ -51,11 +51,8 @@ else:
 
 ## store all data in a list
 AnDA_nadir_file                 = scratchpath+'/resAnDA_nadir_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
-ConvAE_nadir_file               = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/GB1_ConvAE_womissing_wocov/saved_path_019_ConvAE_womissing.pickle'
-FP_GENN_nadir_file_sup          = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_000_GENN_wmissing.pickle'
-FP_GENN_nadir_file_unsup        = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_005_GENN_wwmissing.pickle'
-Grad_GENN_nadir_file_sup        = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wmissing_wOI/saved_path_005_GENN_wmissing.pickle'
-Grad_GENN_nadir_file_unsup      = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wwmissing_wOI/saved_path_005_GENN_wwmissing.pickle'
+ConvAE_nadir_file               = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_womissing_wocov/saved_path_001_ConvAE_womissing.pickle'
+FP_GENN_nadir_file              = scratchpath+'/resIA_nadir_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_000_GENN_wmissing.pickle'
 
 # Reload saved AnDA result
 with open(AnDA_nadir_file, 'rb') as handle:
@@ -63,12 +60,10 @@ with open(AnDA_nadir_file, 'rb') as handle:
     AnDA_ssh_1_nadir = AnDA_ssh_1  
     itrp_dineof_nadir = itrp_dineof
 # Reload saved ConvAE and GE-NN results
-#with open(ConvAE_nadir_file, 'rb') as handle:
-#    itrp_FP_ConvAE_nadir, rec_FP_ConvAE_nadir = pickle.load(handle)[2:]
-with open(FP_GENN_nadir_file_sup, 'rb') as handle:
+with open(ConvAE_nadir_file, 'rb') as handle:
+    itrp_FP_ConvAE_nadir, rec_FP_ConvAE_nadir = pickle.load(handle)[2:]
+with open(FP_GENN_nadir_file, 'rb') as handle:
     itrp_FP_GENN_nadir, rec_FP_GENN_nadir = pickle.load(handle)[7:9]
-#with open(Grad_GENN_nadir_file, 'rb') as handle:
-#    itrp_GB_GENN_nadir, rec_GB_GENN_nadir = pickle.load(handle)[7:9]
 
 # list_data (nadir)
 list_data   = []
@@ -77,14 +72,15 @@ list_data.append(AnDA_ssh_1_nadir.Obs[:,:indLat,:indLon])
 list_data.append(AnDA_ssh_1_nadir.itrp_OI[:,:indLat,:indLon])
 list_data.append(AnDA_ssh_1_nadir.itrp_postAnDA[:,:indLat,:indLon])
 list_data.append(itrp_dineof_nadir[:,:indLat,:indLon])
+list_data.append(itrp_FP_ConvAE_nadir[:,:indLat,:indLon])
 list_data.append(itrp_FP_GENN_nadir[:,:indLat,:indLon])
 # arguments for plots (nadir)
-labels_data = np.array(['GT','Obs (nadir)','OI (nadir)','Post-AnDA (nadir)','VE-DINEOF (nadir)','FP-GENN (nadir)'])
-list_suffix = np.array(['GT','Obs_nadir','OI_nadir','Post_AnDA_nadir','VE_DINEOF_nadir','FP_GENN_nadir'])
-colors      = np.array(['k','','red','seagreen','steelblue','darkorange'])
-symbols     = np.array(['k','','o','o','o','o'])
-lstyle      = np.array(['solid','','solid','solid','solid','solid'])
-lwidth      = np.array([2,2,2,1,1,1])
+labels_data = np.array(['GT','Obs (nadir)','OI (nadir)','Post-AnDA (nadir)','VE-DINEOF (nadir)','FP-ConvAE (nadir)','FP-GENN (nadir)'])
+list_suffix = np.array(['GT','Obs_nadir','OI_nadir','Post_AnDA_nadir','VE_DINEOF_nadir','FP_ConvAE_nadir','FP_GENN_nadir'])
+colors      = np.array(['k','','red','seagreen','steelblue','mediumorchid','darkorange'])
+symbols     = np.array(['k','','o','o','o','o','o'])
+lstyle      = np.array(['solid','','solid','solid','solid','solid','solid'])
+lwidth      = np.array([2,2,2,1,1,1,1])
 
 # compare shapes and do appropriate downscaling with minimal resolution
 min_res=1e9
@@ -136,4 +132,7 @@ resfile=workpath+"/Taylor_diagram_nadir.png"
 Taylor_diagram(list_data,labels_data,colors,symbols,resfile)
 ## plot individual maps (SSH & Gradients)
 plot_maps(list_data,list_suffix,labels_data,lday,"2013-08-04",extent,lon,lat,workpath)
+## animation plots
+resfile=workpath+"/animation_nadir.mp4"
+animate_plots(list_data,labels_data,lday,extent,lon,lat,resfile,gradient=True)
 

@@ -4,7 +4,13 @@ import xrft
 import logging
 import xrft
 from dask.diagnostics import ProgressBar
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import matplotlib.colors as colors
+import matplotlib.animation as animation
+import mpl_toolkits.mplot3d.axes3d as p3
+from mpl_toolkits.axes_grid1.inset_locator import InsetPosition
 from matplotlib.ticker import ScalarFormatter
 
 ## 1) Function for plotting nRMSE
@@ -28,9 +34,12 @@ def plot_nRMSE(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resfile,g
         
     # Compute nRMSE time series
     nRMSE = []
-    for i in range(len(labels_data[2:])):
+    id1=np.where(["GT" not in l for l in labels_data ])[0]
+    id2=np.where(["Obs" not in l for l in labels_data ])[0]
+    id_plot=np.intersect1d(id1,id2)
+    for i in range(len(labels_data[id_plot])):
         nRMSE_=[]
-        meth_i=list_data[i+2]
+        meth_i=list_data[id_plot[i]]
         for j in range(len(lday)):
             if gradient == False:
                 nRMSE_.append((np.sqrt(np.nanmean(((GT[j]-np.nanmean(GT[j]))-(meth_i[j]-np.nanmean(meth_i[j])))**2)))/np.nanstd(GT[j]))
@@ -39,11 +48,11 @@ def plot_nRMSE(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resfile,g
         nRMSE.append(nRMSE_)
   
     # plot nRMSE time series
-    for i in range(len(labels_data[2:])):
+    for i in range(len(labels_data[id_plot])):
         if gradient == False:
-            plt.plot(range(N),nRMSE[i],linestyle=lstyle[i+2],color=colors[i+2],linewidth=lwidth[i+2],label=labels_data[i+2])
+            plt.plot(range(N),nRMSE[i],linestyle=lstyle[id_plot[i]],color=colors[id_plot[i]],linewidth=lwidth[id_plot[i]],label=labels_data[id_plot[i]])
         else:
-            plt.plot(range(N),nRMSE[i],linestyle=lstyle[i+2],color=colors[i+2],linewidth=lwidth[i+2],label=r"$\nabla_{"+str.split(labels_data[i+2])[0]+"}$ "+str.split(labels_data[i+2])[1])
+            plt.plot(range(N),nRMSE[i],linestyle=lstyle[id_plot[i]],color=colors[id_plot[i]],linewidth=lwidth[id_plot[i]],label=r"$\nabla_{"+str.split(labels_data[id_plot[i]])[0]+"}$ "+str.split(labels_data[id_plot[i]])[1])
 
 
     # add vertical bar to divide the 4 periods
@@ -89,18 +98,21 @@ def plot_SNR(list_data,labels_data,colors,symbols,lstyle,lwidth,lday,resssh,resf
 
     # Compute Signal-to-Noise ratio
     SNR = []
-    for i in range(len(labels_data[2:])):
-        print(labels_data[i+2])
-        f, Pf  = avg_err_raPsd2dv1(list_data[i+2][index],GT,resssh,True)
+    id1=np.where(["GT" not in l for l in labels_data ])[0]
+    id2=np.where(["Obs" not in l for l in labels_data ])[0]
+    id_plot=np.intersect1d(id1,id2)
+    for i in range(len(labels_data[id_plot])):
+        print(labels_data[id_plot[i]])
+        f, Pf  = avg_err_raPsd2dv1(list_data[id_plot[i]][index],GT,resssh,True)
         wf     = 1./f
         SNR.append([wf, Pf])
 
     # plot Signal-to-Noise ratio
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    for i in range(len(labels_data[2:])):
+    for i in range(len(labels_data[id_plot])):
         wf, Pf = SNR[i]
-        ax.plot(wf,Pf,linestyle=lstyle[i+2],color=colors[i+2],linewidth=lwidth[i+2],label=labels_data[i+2])
+        ax.plot(wf,Pf,linestyle=lstyle[id_plot[i]],color=colors[id_plot[i]],linewidth=lwidth[id_plot[i]],label=labels_data[id_plot[i]])
     #plt.axhline(y=0.5, color='r', linestyle='-')
     ax.set_xlabel("Wavenumber", fontweight='bold')
     ax.set_ylabel("Signal-to-noise ratio", fontweight='bold')
@@ -150,7 +162,7 @@ def Taylor_diagram(list_data,labels_data,colors,lstyle,resfile):
 def plot_maps(list_data,list_suffix,labels_data,list_day,date,extent,lon,lat,workpath):
     # vmin/vmax based on GT
     iday = np.where(list_day==date)[0][0]
-    vmax = np.nanmax(np.abs(list_data[0]))
+    vmax = np.nanmax(np.abs(list_data[0][iday]))
     vmin = -1.*vmax
     grad_vmax = np.nanmax(np.abs(Gradient(list_data[0][iday],2)))
     grad_vmin = 0
@@ -216,23 +228,26 @@ def RIAE_scores(list_data,labels_data,resfile,gradient=False):
         mask2_nadir                 = np.where(np.isnan(OBS.flatten()),1,np.nan)
 
     # Compute R/I/AE scores
-    tab_scores = np.zeros((len(labels_data[2:]),3))
-    for i in range(len(labels_data[2:])):
-        meth_i=list_data[i+2]
-        print(labels_data[i+2])
-        if ("nadir+swot" in labels_data[i+2]):
+    id1=np.where(["GT" not in l for l in labels_data ])[0]
+    id2=np.where(["Obs" not in l for l in labels_data ])[0]
+    id_plot=np.intersect1d(id1,id2)
+    tab_scores = np.zeros((len(labels_data[id_plot]),3))
+    for i in range(len(labels_data[id_plot])):
+        meth_i=list_data[id_plot[i]]
+        print(labels_data[id_plot[i]])
+        if ("nadir+swot" in labels_data[id_plot[i]]):
             tab_scores[i,0] = Rscore(mask1_nadirswot,GT.flatten()-lr,meth_i.flatten()-lr)
             tab_scores[i,1] = Iscore(mask2_nadirswot,GT.flatten()-lr,meth_i.flatten()-lr)
         else:
             tab_scores[i,0] = Rscore(mask1_nadir,GT.flatten()-lr,meth_i.flatten()-lr)
             tab_scores[i,1] = Rscore(mask2_nadir,GT.flatten()-lr,meth_i.flatten()-lr)
-        if ("rec" in labels_data[i+2]):
+        if ("rec" in labels_data[id_plot[i]]):
             tab_scores[i,2] = AEscore(GT.flatten()-lr,meth_i.flatten()-lr)
         else:
             tab_scores[i,2] = np.nan
     np.savetxt(fname=resfile,X=tab_scores,fmt='%2.2f')
 
-# 5) export NetCDF
+# 6) export NetCDF
 def export_NetCDF(list_data,labels_data,list_day,lon,lat,resfile):
 
     GT  = list_data[0]
@@ -254,7 +269,7 @@ def export_NetCDF(list_data,labels_data,list_day,lon,lat,resfile):
     # write to file
     data.to_netcdf(resfile)
 
-## 6) New PSD scores
+## 7) New PSD scores
 def PSD(ds,time,method):
 
     # Compute error = SSH_reconstruction - SSH_true
@@ -360,32 +375,73 @@ def plot_psd(ncdf_file,labels_data,list_day,resfile,periods=[[0,20],[20,40],[40,
 
     # loop over the 4 periods
     list_PSD_all_periods = []
+    id1=np.where(["GT" not in l for l in labels_data ])[0]
+    id2=np.where(["Obs" not in l for l in labels_data ])[0]
+    id_plot=np.intersect1d(id1,id2)
     for i in range(len(periods)):
         list_PSD = []
         ds2  = ds.isel(time=slice(periods[i][0], periods[i][1]))
         time = time_u[periods[i][0]:periods[i][1]]-time_u[periods[i][0]]
         # loop over the methods
-        for j in range(len(labels_data[2:])):
-            list_PSD.append(PSD(ds2,time,labels_data[j+2])[0])
+        for j in range(len(labels_data[id_plot])):
+            list_PSD.append(PSD(ds2,time,labels_data[id_plot[j]])[0])
 
         ds_psd = xr.concat(list_PSD, dim='experiment')
-        ds_psd['experiment'] = labels_data[2:]
+        ds_psd['experiment'] = labels_data[id_plot]
         plot_psd_score(ds_psd,resfile+"_period"+str(i)+".png")
   
         list_PSD_all_periods.append(list_PSD)
 
     # average
     list_PSD = []
-    for j in range(len(labels_data[2:])):
+    for j in range(len(labels_data[id_plot])):
 
         ds_psd = xr.concat([list_PSD_all_periods[i][j] for i in range(len(periods))],dim='period')
         mean   = ds_psd.mean('period')
         list_PSD.append(mean)
 
     ds_psd = xr.concat(list_PSD, dim='experiment')
-    ds_psd['experiment'] = labels_data[2:]
+    ds_psd['experiment'] = labels_data[id_plot]
     plot_psd_score(ds_psd,resfile+"_mean.png")
 
+## 8) Newscores
 
+def animate_plots(list_data,labels_data,lday,extent,lon,lat,resfile,gradient=False):
+
+    def animate(i, fig, ax):
+        print(i)
+        for ivar in range(len(list_data)):
+            ii = int(np.floor(ivar/3))
+            jj = int(np.floor(ivar%3))
+            ax[ii][jj].cla()
+            if gradient==True:
+                cmap="viridis"
+                if len(str.split(labels_data[ivar]))>1:
+                    title = r"$\nabla_{"+str.split(labels_data[ivar])[0]+"}$ "+str.split(labels_data[ivar])[1]
+                else:
+                    title = r"$\nabla_{"+labels_data[ivar]+"}$"
+                plot(ax,ii,jj,lon,lat,Gradient(list_data[ivar][i],2),title,
+                     extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
+            else:
+                cmap="coolwarm"
+                plot(ax,ii,jj,lon,lat,list_data[ivar][i],labels_data[ivar],
+                     extent=extent,cmap=cmap,vmin=vmin,vmax=vmax,colorbar=False)
+            fig.suptitle(lday[i])
+        return fig, ax
+
+    if gradient==False:
+        vmax = np.nanmax(np.abs(list_data[0]))
+        vmin = -1.*vmax
+    else:
+        vmax = np.nanmax(np.abs(Gradient(list_data[0],2)))
+        vmin = 0
+
+    fig, ax = plt.subplots(int(np.ceil(len(list_data)/3)),3,figsize=(15,10),\
+              subplot_kw=dict(projection=ccrs.PlateCarree(central_longitude=0.0)))
+    plt.subplots_adjust(hspace=0.5)
+    ani = animation.FuncAnimation(fig, animate, frames=np.arange(1,len(list_data[0])), fargs=(fig,ax,), interval=1000, repeat=False)
+    writer = animation.FFMpegWriter(fps=1, bitrate=5000)
+    ani.save(resfile, writer = writer)
+    plt.close()
 
 
