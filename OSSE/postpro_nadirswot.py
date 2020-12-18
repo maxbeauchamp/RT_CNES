@@ -51,10 +51,10 @@ else:
 ## store all data in a list
 AnDA_nadirswot_file             = scratchpath+'/resAnDA_nadirswot_nadlag_'+AnDA_lag+"_"+type_obs+'/saved_path.pickle'
 FP_ConvAE_nadirswot_file        = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_ConvAE_wmissing_wOI/saved_path_000_ConvAE_wmissing.pickle'
-FP_GENN_nadirswot_file_sup      = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wmissing_wOI/saved_path_001_GENN_wmissing.pickle'
-FP_GENN_nadirswot_file_unsup    = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_002_GENN_wwmissing.pickle'
-Grad_GENN_nadirswot_file_sup    = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wmissing_wOI/saved_path_005_GENN_wmissing.pickle'
-Grad_GENN_nadirswot_file_unsup  = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wwmissing_wOI/saved_path_005_GENN_wwmissing.pickle'
+FP_GENN_nadirswot_file_sup      = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wmissing_wOI/saved_path_000_GENN_wmissing.pickle'
+FP_GENN_nadirswot_file_unsup    = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/FP_GENN_wwmissing_wOI/saved_path_019_GENN_wwmissing.pickle'
+Grad_GENN_nadirswot_file_sup    = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wmissing_wOI/saved_path_001_GENN_wmissing.pickle'
+Grad_GENN_nadirswot_file_unsup  = scratchpath+'/resIA_nadirswot_nadlag_'+NN_lag+"_"+type_obs+'/GB1_GENN_wwmissing_wOI/saved_path_000_GENN_wwmissing.pickle'
 
 # Reload saved AnDA result
 with open(AnDA_nadirswot_file, 'rb') as handle:
@@ -66,8 +66,8 @@ with open(FP_ConvAE_nadirswot_file, 'rb') as handle:
     itrp_FP_ConvAE_nadirswot, rec_FP_ConvAE_nadirswot = pickle.load(handle)[7:9]
 with open(FP_GENN_nadirswot_file_sup, 'rb') as handle:
     itrp_FP_GENN_nadirswot, rec_FP_GENN_nadirswot = pickle.load(handle)[7:9]
-#with open(Grad_GENN_nadirswot_file, 'rb') as handle:
-#    itrp_GB_GENN_nadirswot, rec_GB_GENN_nadirswot = pickle.load(handle)[7:9]
+with open(Grad_GENN_nadirswot_file_sup, 'rb') as handle:
+    itrp_GB_GENN_nadirswot, rec_GB_GENN_nadirswot = pickle.load(handle)[7:9]
 
 # list_data (nadir+swot)
 list_data   = []
@@ -76,16 +76,23 @@ list_data.append(AnDA_ssh_1_nadirswot.Obs[:,:indLat,:indLon])
 list_data.append(AnDA_ssh_1_nadirswot.itrp_OI[:,:indLat,:indLon])
 list_data.append(AnDA_ssh_1_nadirswot.itrp_postAnDA[:,:indLat,:indLon])
 list_data.append(itrp_dineof_nadirswot[:,:indLat,:indLon])
-list_data.append(itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon])
+#list_data.append(itrp_FP_ConvAE_nadirswot[:,:indLat,:indLon])
 list_data.append(itrp_FP_GENN_nadirswot[:,:indLat,:indLon])
-#list_data.append(itrp_GB_GENN_nadirswot[:,:indLat,:indLon])
+list_data.append(itrp_GB_GENN_nadirswot[:,:indLat,:indLon])
 # arguments for plots (nadir+swot)
-labels_data = np.array(['GT','Obs (nadir+swot)','OI (nadir+swot)','Post-AnDA (nadir+swot)','VE-DINEOF (nadir+swot)','FP-ConvAE (nadir+swot)','FP-GENN (nadir+swot)'])#,'Grad-GENN (nadir+swot)'])
-list_suffix = np.array(['GT','Obs_nadirswot','OI_nadirswot','Post_AnDA_nadirswot','VE_DINEOF_nadirswot','FP_ConvAE_nadirswot','FP_GENN_nadirswot'])#,'Grad_GENN_nadirswot'])
-colors      = np.array(['k','','red','seagreen','steelblue','violet','darkorange'])#,'darkblue'])
-symbols     = np.array(['k','','o','o','o','o','o'])#,'o'])
-lstyle      = np.array(['solid','','solid','solid','solid','solid','solid'])#,'solid'])
-lwidth      = np.array([2,2,2,1,1,1,1])#,1])
+labels_data = np.array(['GT','Obs (nadir+swot)','OI (nadir+swot)','Post-AnDA (nadir+swot)','VE-DINEOF (nadir+swot)','FP-ConvAE (nadir+swot)','FP-GENN (nadir+swot)','Grad-GENN (nadir+swot)'])
+list_suffix = np.array(['GT','Obs_nadirswot','OI_nadirswot','Post_AnDA_nadirswot','VE_DINEOF_nadirswot','FP_ConvAE_nadirswot','FP_GENN_nadirswot','Grad_GENN_nadirswot'])
+colors      = np.array(['k','','red','seagreen','steelblue','violet','darkorange','darkblue'])
+symbols     = np.array(['k','','o','o','o','o','o','o'])
+lstyle      = np.array(['solid','','solid','solid','solid','solid','solid','solid'])
+lwidth      = np.array([2,2,2,1,1,1,1,1])
+
+labels_data = np.array(['GT','Obs (nadir+swot)','OI (nadir+swot)','Post-AnDA (nadir+swot)','VE-DINEOF (nadir+swot)','FP-GENN (nadir+swot)','Grad-GENN (nadir+swot)'])
+list_suffix = np.array(['GT','Obs_nadirswot','OI_nadirswot','Post_AnDA_nadirswot','VE_DINEOF_nadirswot','FP_GENN_nadirswot','Grad_GENN_nadirswot'])
+colors      = np.array(['k','','red','seagreen','steelblue','darkorange','darkblue'])
+symbols     = np.array(['k','','o','o','o','o','o'])
+lstyle      = np.array(['solid','','solid','solid','solid','solid','solid'])
+lwidth      = np.array([2,2,2,1,1,1,1])
 
 # compare shapes and do appropriate downscaling with minimal resolution
 min_res=1e9
@@ -118,7 +125,7 @@ lday2 = [ datetime.strptime(lday[i],'%Y-%m-%d') for i in range(len(lday)) ]
 ncdf_file=workpath+"/NetCDF_nadirswot.nc"
 export_NetCDF(list_data,labels_data,lday,lon,lat,ncdf_file)
 ## test PSD
-resfile=workpath+"/new_psd"
+resfile=workpath+"/BOOST_PSD_nadirswot"
 plot_psd(ncdf_file,labels_data,lday,resfile)
 ## Compute R/I/AE scores
 resfile=workpath+"/RIAE_scores_nadirswot.png"

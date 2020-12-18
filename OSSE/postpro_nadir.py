@@ -113,6 +113,12 @@ lday4 = [ datetime.strftime(datetime.strptime("2012-10-01",'%Y-%m-%d')\
 lday  = np.concatenate([lday1,lday2,lday3,lday4])
 lday2 = [ datetime.strptime(lday[i],'%Y-%m-%d') for i in range(len(lday)) ] 
 
+## Export methods to NetCDF
+ncdf_file=workpath+"/NetCDF_nadir.nc"
+export_NetCDF(list_data,labels_data,lday,lon,lat,ncdf_file)
+## test PSD
+resfile=workpath+"/Boost_PSD_nadir"
+plot_psd(ncdf_file,labels_data,lday,resfile)
 ## Compute R/I/AE scores
 resfile=workpath+"/RIAE_scores_nadir.png"
 RIAE_scores(list_data,labels_data,resfile,gradient=False)

@@ -350,6 +350,7 @@ def plot_psd_score(ds_psd,resfile):
                         verticalalignment='center')
 
     plt.savefig(resfile)
+    plt.close()                # close the figure
 
 def plot_psd(ncdf_file,labels_data,list_day,resfile,periods=[[0,20],[20,40],[40,60],[60,80]]):
 
@@ -379,7 +380,6 @@ def plot_psd(ncdf_file,labels_data,list_day,resfile,periods=[[0,20],[20,40],[40,
 
         ds_psd = xr.concat([list_PSD_all_periods[i][j] for i in range(len(periods))],dim='period')
         mean   = ds_psd.mean('period')
-        print(mean)
         list_PSD.append(mean)
 
     ds_psd = xr.concat(list_PSD, dim='experiment')
